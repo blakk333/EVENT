@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create Event | Eventaro</title>
+    <link th:href="@{/css/create-event/style-create-event.css}" rel="stylesheet"/>
+    <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+<body>
+<nav>
+    <div class="left-section">
+        <img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img">
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a class="active" th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a th:href="@{/categories}">Categories</a></li>
+        <li><a th:href="@{/organizers}">Organizers</a></li>
+        <li><a th:href="@{/log}">Audit Log</a></li>
+    </ul>
+    <div class="profile-box">
+        <img th:src="@{/images/mariaBerger.png}" alt="profile">
+        <span>▼</span>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="container narrow">
+        <h1 class="text-center">Create new Event</h1>
+
+        <form th:action="@{/events/create}"
+              th:object="${createEventRequest}"
+              method="post"
+              enctype="multipart/form-data"
+              novalidate
+              class="form-grid">
+
+            <!-- IMAGE -->
+            <div class="form-group full-width">
+                <label>Event Image</label>
+                <input type="file" name="imageFile" accept="image/*">
+            </div>
+
+            <!-- ORGANIZER -->
+            <div class="form-group">
+                <label>Organizer*</label>
+                <select th:field="*{organizerId}" required
+                        th:classappend="${#fields.hasErrors('organizerId')} ? 'error-field'">
+                    <option value="">Select organizer</option>
+                    <option th:each="org : ${organizers}" th:value="${org.id}" th:text="${org.organizationName}"></option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('organizerId')}" th:errors="*{organizerId}"></div>
+            </div>
+
+            <!-- TITLE -->
+            <div class="form-group">
+                <label>Title*</label>
+                <input type="text" th:field="*{title}" placeholder="Event title" required
+                       th:classappend="${#fields.hasErrors('title')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="form-group">
+                <label>Category*</label>
+                <select th:field="*{categoryId}" required
+                        th:classappend="${#fields.hasErrors('categoryId')} ? 'error-field'">
+                    <option value="">Select category</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+            </div>
+
+            <!-- SKILL LEVEL -->
+            <div class="form-group">
+                <label>Skill Level*</label>
+                <select th:field="*{skillLevel}" required
+                        th:classappend="${#fields.hasErrors('skillLevel')} ? 'error-field'">
+                    <option value="">Select skill level</option>
+                    <option th:each="level : ${skillLevels}"
+                            th:value="${level}"
+                            th:text="${#strings.capitalize(level.name().toLowerCase())}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('skillLevel')}" th:errors="*{skillLevel}"></div>
+            </div>
+
+            <!-- START / END -->
+            <div class="form-group">
+                <label>Start Date*</label>
+                <input type="date" th:field="*{startDate}" required
+                       th:classappend="${#fields.hasErrors('startDate')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>End Date*</label>
+                <input type="date" th:field="*{endDate}" required
+                       th:classappend="${#fields.hasErrors('endDate')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Start time*</label>
+                <input type="time" th:field="*{startTime}" required
+                       th:classappend="${#fields.hasErrors('startTime')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>End time*</label>
+                <input type="time" th:field="*{endTime}" required
+                       th:classappend="${#fields.hasErrors('endTime')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></div>
+            </div>
+
+            <!-- PARTICIPANTS / PRICE -->
+            <div class="form-group">
+                <label>Min. participants*</label>
+                <input type="number" th:field="*{minParticipants}" min="1" required
+                       th:classappend="${#fields.hasErrors('minParticipants')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('minParticipants')}" th:errors="*{minParticipants}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Max. participants*</label>
+                <input type="number" th:field="*{maxParticipants}" min="1" required
+                       th:classappend="${#fields.hasErrors('maxParticipants')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('maxParticipants')}" th:errors="*{maxParticipants}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Price (€)*</label>
+                <input type="number" th:field="*{price}" placeholder="0.00" min="0" step="0.01" required
+                       th:classappend="${#fields.hasErrors('price')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Description</label>
+                <textarea th:field="*{description}" rows="3" placeholder="Event description"
+                          th:classappend="${#fields.hasErrors('description')} ? 'error-field'"></textarea>
+                <div class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+            </div>
+
+            <!-- ADDRESS -->
+            <div class="section-heading full-width"><h3>Address</h3></div>
+
+            <div class="form-group">
+                <label>Street*</label>
+                <input type="text" th:field="*{location.street}"
+                       th:classappend="${#fields.hasErrors('location.street')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('location.street')}" th:errors="*{location.street}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>House No.</label>
+                <input type="text" th:field="*{location.houseNumber}"
+                       th:classappend="${#fields.hasErrors('location.houseNumber')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('location.houseNumber')}" th:errors="*{location.houseNumber}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>ZIP code*</label>
+                <input type="text" th:field="*{location.postalCode}"
+                       th:classappend="${#fields.hasErrors('location.postalCode')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('location.postalCode')}" th:errors="*{location.postalCode}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>City*</label>
+                <input type="text" th:field="*{location.city}"
+                       th:classappend="${#fields.hasErrors('location.city')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('location.city')}" th:errors="*{location.city}"></div>
+            </div>
+
+            <!--<div class="form-group">
+                <label>Country*</label>
+                <input type="text" th:field="*{location.country}"
+                       th:classappend="${#fields.hasErrors('location.country')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('location.country')}" th:errors="*{location.country}"></div>
+            </div>-->
+
+            <!-- COUNTRY -->
+            <div class="form-group">
+                <label>Country*</label>
+                <select th:field="*{location.country}" required
+                        th:classappend="${#fields.hasErrors('location.country')} ? 'error-field'">
+                    <option value="">Select country</option>
+                    <option th:each="c : ${countries}"
+                            th:value="${c}"
+                            th:text="${#strings.capitalize(c.name().toLowerCase())}">
+                    </option>
+                </select>
+
+                <div class="field-error"
+                     th:if="${#fields.hasErrors('location.country')}"
+                     th:errors="*{location.country}">
+                </div>
+            </div>
+
+
+            <div class="button-group full-width">
+                <button type="button" class="btn-cancel" onclick="window.location.href='/events/view'">Cancel</button>
+                <button class="btn-primary" type="submit">Create Event</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>About | Contact us | Blog | Affiliates | Help</p>
+    <div class="footer-logo">
+        <img th:src="@{/images/logo-footer.svg}" alt="Logo" class="footer-logo">
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(d => d.setAttribute('min', today));
+    });
+</script>
+</body>
+</html>

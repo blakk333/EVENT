@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Book Event | Eventaro</title>
+    <link th:href="@{/css/create-event/style-create-event.css}" rel="stylesheet"/>
+    <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<nav>
+    <div class="left-section">
+        <img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img">
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a th:href="@{/categories}">Categories</a></li>
+        <li><a th:href="@{/organizers}">Organizers</a></li>
+        <li><a th:href="@{/log}">Audit Log</a></li>
+    </ul>
+    <div class="profile-box">
+        <img th:src="@{/images/mariaBerger.png}" alt="profile">
+        <span>▼</span>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="container narrow">
+
+        <h1 class="text-center">Book Event</h1>
+
+        <div style="background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #ddd;">
+            <h3 th:text="${event.name}" style="margin-bottom: 0.5rem; color: #1C481C;">Event Name</h3>
+            <p style="color: #666;">
+                <strong>Date:</strong> <span th:text="${#temporals.format(event.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
+                <strong>Price per Ticket:</strong> €<span id="basePrice" th:text="${event.basePrice}">50.00</span>
+            </p>
+        </div>
+
+        <form th:action="@{/bookings/create}"
+              th:object="${bookingRequest}"
+              method="post"
+              novalidate
+              class="form-grid">
+
+            <input type="hidden" th:field="*{eventId}">
+
+            <div class="section-heading full-width"><h3>Guest Information</h3></div>
+
+            <div class="form-group">
+                <label>First Name*</label>
+                <input type="text" th:field="*{firstName}" placeholder="John" required
+                       th:classappend="${#fields.hasErrors('firstName')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Last Name*</label>
+                <input type="text" th:field="*{lastName}" placeholder="Doe" required
+                       th:classappend="${#fields.hasErrors('lastName')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Email*</label>
+                <input type="email" th:field="*{email}" placeholder="john.doe@example.com" required
+                       th:classappend="${#fields.hasErrors('email')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" th:field="*{phoneNumber}" placeholder="+43 123 456789">
+            </div>
+
+            <div class="section-heading full-width"><h3>Billing Address</h3></div>
+
+            <div class="form-group">
+                <label>Street*</label>
+                <input type="text" th:field="*{address.street}"
+                       th:classappend="${#fields.hasErrors('address.street')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('address.street')}" th:errors="*{address.street}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>House No.</label>
+                <input type="text" th:field="*{address.houseNumber}"
+                       th:classappend="${#fields.hasErrors('address.houseNumber')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('address.houseNumber')}" th:errors="*{address.houseNumber}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>ZIP Code*</label>
+                <input type="text" th:field="*{address.postalCode}"
+                       th:classappend="${#fields.hasErrors('address.postalCode')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('address.postalCode')}" th:errors="*{address.postalCode}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>City*</label>
+                <input type="text" th:field="*{address.city}"
+                       th:classappend="${#fields.hasErrors('address.city')} ? 'error-field'">
+                <div class="field-error" th:if="${#fields.hasErrors('address.city')}" th:errors="*{address.city}"></div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Country*</label>
+                <select th:field="*{address.country}" required
+                        th:classappend="${#fields.hasErrors('address.country')} ? 'error-field'">
+                    <option value="">Select country</option>
+                    <option th:each="c : ${countries}"
+                            th:value="${c}"
+                            th:text="${#strings.capitalize(c.name().toLowerCase())}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('address.country')}" th:errors="*{address.country}"></div>
+            </div>
+
+            <div class="section-heading full-width"><h3>Booking Details</h3></div>
+
+            <div class="form-group">
+                <label>Number of Tickets*</label>
+                <input type="number" id="ticketCount" th:field="*{ticketCount}" min="1" max="50" required
+                       th:classappend="${#fields.hasErrors('ticketCount')} ? 'error-field'"
+                       onchange="updateTotal()">
+                <div class="field-error" th:if="${#fields.hasErrors('ticketCount')}" th:errors="*{ticketCount}"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Method*</label>
+                <select th:field="*{paymentMethod}" required
+                        th:classappend="${#fields.hasErrors('paymentMethod')} ? 'error-field'">
+                    <option value="">Select payment method</option>
+                    <option th:each="method : ${paymentMethods}"
+                            th:value="${method}"
+                            th:text="${#strings.capitalize(method.name().toLowerCase().replace('_', ' '))}">
+                    </option>
+                </select>

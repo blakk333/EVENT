@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice | Eventaro</title>
+  <style>
+    body {
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      background-color: #555;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+    .invoice-sheet {
+      background: white;
+      width: 210mm;
+      min-height: 297mm; /* A4 Format */
+      padding: 20mm;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      position: relative;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #F1911B;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+    .company-info h1 {
+      margin: 0;
+      color: #1C481C;
+      font-size: 1.5rem;
+    }
+    .invoice-meta {
+      text-align: right;
+    }
+    .recipient {
+      margin-bottom: 3rem;
+    }
+    .recipient h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    th {
+      text-align: left;
+      background: #f5f5f5;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .totals {
+      float: right;
+      width: 40%;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+    .grand-total {
+      font-weight: bold;
+      font-size: 1.2rem;
+      border-top: 2px solid #333;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    .footer {
+      position: absolute;
+      bottom: 20mm;
+      left: 20mm;
+      right: 20mm;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+    .status-stamp {
+      position: absolute;
+      top: 150px;
+      right: 50px;
+      font-size: 3rem;
+      color: rgba(241, 145, 27, 0.2);
+      border: 5px solid rgba(241, 145, 27, 0.2);
+      padding: 10px 20px;
+      transform: rotate(-15deg);
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    @media print {
+      body { background: white; padding: 0; }
+      .invoice-sheet { box-shadow: none; }
+    }
+    .actions {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 10px 20px;
+      background: #F1911B;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-back { background: #666; }
+  </style>
+</head>
+<body>
+
+<div class="actions">
+  <a href="/bookings/today" class="btn btn-back">Back to List</a>
+  <button onclick="window.print()" class="btn">Print / PDF</button>
+</div>
+
+<div class="invoice-sheet">
+
+  <div class="status-stamp" th:text="${invoice.status}">DRAFT</div>
+
+  <div class="header">
+    <div class="company-info">
+      <h1>Eventaro Inc.</h1>
+      <p>Adventure Street 1<br>6020 Innsbruck, Austria</p>
+    </div>
+    <div class="invoice-meta">
+      <h2>INVOICE</h2>
+      <p>
+        <strong>Number:</strong> <span th:text="${invoice.invoiceNumber}">INV-001</span><br>
+        <strong>Date:</strong> <span th:text="${invoice.invoiceDate}">2025-01-01</span><br>
+        <strong>Booking Ref:</strong> <span th:text="${invoice.booking.bookingNumber}">B-123</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="recipient">
+    <h3>Bill To:</h3>
+    <p th:text="${invoice.recipientName}">Max Mustermann</p>
+    <p th:text="${invoice.recipientAddress}">Musterstraße 1, 1234 Stadt</p>
+  </div>
+
+  <table>
+    <thead>
+    <tr>
+      <th>Description</th>
+      <th style="text-align: center;">Qty</th>
+      <th style="text-align: right;">Unit Price</th>
+      <th style="text-align: right;">Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${invoice.items}">
+      <td th:text="${item.description}">Ticket Event X</td>
+      <td style="text-align: center;" th:text="${item.quantity}">1</td>
+      <td style="text-align: right;" th:text="'€ ' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">50.00</td>
+      <td style="text-align: right;" th:text="'€ ' + ${#numbers.formatDecimal(item.totalAmount, 1, 2)}">50.00</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div class="totals-row">
+      <span>Subtotal:</span>
+      <span th:text="'€ ' + ${#numbers.formatDecimal(invoice.totalAmount, 1, 2)}">50.00</span>
+    </div>
+    <div class="totals-row">
+      <span>VAT (20%):</span>
+      <span th:text="'€ ' + ${#numbers.formatDecimal(invoice.taxAmount, 1, 2)}">10.00</span>
+    </div>
+    <div class="totals-row grand-total">
+      <span>TOTAL:</span>
+      <span th:text="'€ ' + ${#numbers.formatDecimal(invoice.totalAmount + invoice.taxAmount, 1, 2)}">60.00</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Thank you for your business!</p>
+    <p>Payment Method: <span th:text="${invoice.paymentMethod}">CREDIT_CARD</span></p>
+    <p>Eventaro Inc. | VAT ID: ATU12345678</p>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+:root {
+    --nav-text: #1C481C;
+    --background: #FBF7E9;
+    --button: #F1911B;
+    --danger: #d32f2f;
+    --gray-light: #eee;
+    --white: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: #333;
+    padding-top: 70px;
+}
+
+/* ===================== LAYOUT ===================== */
+.page {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.container.narrow {
+    flex: 1;
+    max-width: 960px;
+    width: 100%;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* ===================== FORM GRID ===================== */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 1.5rem;
+    margin-top: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-weight: 600;
+    color: var(--nav-text);
+}
+
+input, select, textarea {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: var(--white);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--button);
+    box-shadow: 0 0 0 2px rgba(241,145,27,0.2);
+}
+
+/* ===================== FEHLER DARSTELLUNG ===================== */
+.field-error {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: -0.2rem;
+}
+
+.error-field {
+    border-color: #d32f2f !important;
+    background-color: #fff6f6;
+}
+
+/* ===================== BUTTONS ===================== */
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-primary, .btn-cancel {
+    display: inline-block; /* ← Wichtig für <a> */
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    color: var(--white);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    text-decoration: none;
+}
+
+
+.btn-primary {
+    background-color: var(--button);
+}
+
+.btn-primary:hover {
+    background-color: #d97b00;
+    transform: translateY(-1px);
+}
+
+.btn-cancel {
+    background-color: var(--danger);
+    font-weight: 600;
+}
+
+.btn-cancel:hover {
+    background-color: #b71c1c;
+    transform: translateY(-1px);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    nav {
+        padding: 0.5rem 1rem;
+        height: 60px;
+    }
+
+    /* Logo & Profilbild verkleinern auf Mobile */
+    .logo-img {
+        height: 85px;
+        max-height: 85px;
+        margin-top: 3px;
+    }
+
+    .profile-box img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .nav-links a {
+        font-size: 0.9rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events & Bookings | Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/view-event-list-backoffice/style-view-events.css}">
+    <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+
+<body>
+<nav>
+    <div class="left-section">
+        <img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img">
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a class="active" th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a th:href="@{/categories}">Categories</a></li>
+        <li><a th:href="@{/organizers}">Organizers</a></li>
+        <li><a th:href="@{/log}">Audit Log</a></li>
+    </ul>
+    <div class="profile-box">
+        <img th:src="@{/images/mariaBerger.png}" alt="profile">
+        <span>▼</span>
+    </div>
+</nav>
+
+<div class="container">
+
+    <h1>Events & Bookings Overview</h1>
+    <p class="subtitle">View and manage events & bookings</p>
+
+    <div class="card">
+        <h3>All Events ± 7 days</h3>
+        <p>View and manage all events within 7 days from today</p>
+
+        <div class="top-actions">
+            <a th:href="@{/events/create}" class="create-btn">+ Create Event</a>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Category</th>
+                    <th>Organizer</th>
+                    <th>Schedule Type</th>
+                    <th>Date</th>
+                    <th>Cancellation Date</th>
+                    <th>Price</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Thymeleaf Loop für jedes Event -->
+                <tr th:each="event : ${events}">
+                    <td>
+                        <span class="event-title" th:text="${event.name}">Event Name</span><br>
+                    </td>
+                    <td th:text="${event.category?.name}">Category</td>
+                    <td th:text="${event.organizer?.organizationName}">Organizer</td>
+                    <td th:text="${event.scheduleType}">Schedule Type</td>
+                    <td th:text="${#temporals.format(event.startDateTime, 'dd.MM.yyyy')}">Date</td>
+                    <td>-</td> <!-- Cancellation Date - später implementieren -->
+                    <td th:text="'€' + ${#numbers.formatDecimal(event.basePrice, 1, 2)}">Price</td>
+                    <td th:text="${event.maxNumberOfParticipants}">Capacity</td>
+                    <td>
+                    <span th:classappend="'status ' + ${event.statusOfEvent.name().toLowerCase()}"
+                          th:text="${event.statusOfEvent}">Status</span>
+                    </td>
+                    <td class="actions">
+                        <div class="actions-inner">
+                            <!-- View Button -->
+                            <button class="btn-view"
+                                    th:onclick="'location.href=\'/events/details/' + ${event.id} + '\''">
+                                <svg width="20" height="30" viewBox="0 0 24 24" fill="none" stroke="#1C481C"
+                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+
+                            <!-- Edit Button -->
+                            <button class="btn-edit"
+                                    th:onclick="'location.href=\'/events/edit/' + ${event.id} + '\''">
+                                <svg width="20" height="30" viewBox="0 0 24 24" fill="none" stroke="#f08c00"
+                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+
+
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Bookings Overview</h3>
+        <p>View and manage all bookings</p>
+        <div style="text-align: center; padding: 3rem; color: #666; font-style: italic;">
+            No bookings yet
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>About | Contact us | Blog | Affiliates | Help</p>
+    <div class="footer-logo">
+        <img th:src="@{/images/logo-footer.svg}" alt="Logo" class="footer-logo">
+    </div>
+</footer>
+
+</body>
+</html>

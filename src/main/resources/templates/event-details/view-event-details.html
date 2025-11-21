@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${event.name} + ' - Event Details'">Event Details</title>
+    <link rel="stylesheet" th:href="@{/css/event-details/view-event-details.css}">
+    <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+
+<body>
+<nav>
+    <div class="left-section">
+        <img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img">
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a class="active" th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a th:href="@{/categories}">Categories</a></li>
+        <li><a th:href="@{/organizers}">Organizers</a></li>
+        <li><a th:href="@{/log}">Audit Log</a></li>
+    </ul>
+    <div class="profile-box">
+        <img th:src="@{/images/mariaBerger.png}" alt="profile">
+        <span>▼</span>
+    </div>
+</nav>
+
+
+<main class="container">
+    <div class="frame">
+
+        <h1 th:text="${event.name}">Event title</h1>
+
+        <section class="hero">
+            <figure class="media">
+                <img class="hero-img"
+                     th:src="@{'/events/details/' + ${event.id} + '/image'}"
+                     th:alt="${event.name}"
+                     onerror="this.src='https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1800&auto=format&fit=crop'">
+            </figure>
+        </section>
+
+        <div class="badge-row">
+      <span class="badge status"
+            th:if="${event.statusOfEvent != null}"
+            th:text="${#strings.capitalize(event.statusOfEvent.name().toLowerCase().replace('_',' '))}">
+        Scheduled
+      </span>
+
+            <span class="badge skill"
+                  th:if="${event.skillLevel != null}"
+                  th:text="${#strings.capitalize(event.skillLevel.name().toLowerCase().replace('_',' '))}">
+        Beginner
+      </span>
+
+            <span class="badge schedule"
+                  th:if="${event.scheduleType != null}"
+                  th:text="${#strings.capitalize(event.scheduleType.name().toLowerCase().replace('_',' '))}">
+        One-time
+      </span>
+        </div>
+
+        <div class="lede" th:text="${event.description}">
+            Short description of the event.
+        </div>
+
+        <section class="meta-grid">
+
+            <div class="meta-item">
+                <div class="meta-label">Location</div>
+                <div class="meta-value">
+                    <span th:if="${event.location != null}">
+                        <span th:text="${event.location.street}" th:if="${event.location.street != null}"></span>
+
+                                            <span th:if="${event.location.housenumber != null}">
+                            <span th:text="' ' + ${event.location.housenumber}"></span>
+                        </span>
+
+                                            <span th:if="(${event.location.street != null or event.location.housenumber != null})
+                                     and (event.location.city != null or event.location.country != null)">, </span>
+
+                                            <span th:text="${event.location.city}" th:if="${event.location.city != null}"></span>
+
+                                            <span th:if="${event.location.city != null and event.location.country != null}">, </span>
+
+                                            <span th:text="${event.location.country}" th:if="${event.location.country != null}"></span>
+                    </span>
+
+
+                    <span th:if="${event.location == null}">—</span>
+                </div>
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Date & Time</div>
+                <div class="meta-value">
+                    <span th:text="${#temporals.format(event.startDateTime, 'dd.MM.yyyy HH:mm')}"></span>
+                    &nbsp;–&nbsp;
+                    <span th:text="${#temporals.format(event.endDateTime, 'dd.MM.yyyy HH:mm')}"></span>
+                </div>
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Price</div>
+                <div class="meta-value">
+                    €<span th:text="${event.basePrice != null ? #numbers.formatDecimal(event.basePrice,1,2) : '0,00'}">0,00</span>
+                </div>
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Participants</div>
+                <div class="meta-value">
+                    <span th:text="'Minimum number of Participants: ' + ${event.minNumberOfParticipants}"></span><br>
+                    <span th:text="'Maximum number of Participants: ' + ${event.maxNumberOfParticipants}"></span>
+                </div>
+            </div>
+
+
+            <div class="meta-item">
+                <div class="meta-label">Organizer</div>
+                <div class="meta-value"
+                     th:text="${event.organizer?.organizationName} ?: '—'">—
+                </div>
+
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Category</div>
+                <div class="meta-value"
+                     th:text="${event.category != null ? event.category.name : '—'}">—
+                </div>
+            </div>
+        </section>
+
+        <section class="services" th:if="${event.additionalServices != null and !event.additionalServices.isEmpty()}">
+            <h2 class="h2">Add-on Services</h2>
+            <ul class="pill-list">
+                <li class="pill" th:each="s : ${event.additionalServices}"
+                    th:text="${s.name}">Transport
+                </li>
+            </ul>
+        </section>
+
+        <div class="cta-wrapper" style="display: flex; justify-content: center; gap: 1rem;">
+
+            <a class="btn cta" th:href="@{'/bookings/create/' + ${event.id}}">
+                Book Ticket Now
+            </a>
+
+            <a class="btn cta" style="background-color: #666;" th:href="@{'/events/edit/' + ${event.id}}">
+                Edit Event
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<footer>
+    <p>About | Contact us | Blog | Affiliates | Help</p>
+    <div class="footer-logo">
+        <img th:src="@{/images/logo-footer.svg}" alt="Logo" class="footer-logo">
+    </div>
+</footer>
+
+</body>
+</html>

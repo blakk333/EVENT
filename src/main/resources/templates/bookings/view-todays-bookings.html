@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Today's Bookings | Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/view-event-list-backoffice/style-view-events.css}">
+    <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+    <style>
+        /* Status Farben */
+        .status.confirmed { background-color: #e3f2fd; color: #1565c0; }
+        .status.checked_in { background-color: #e8f5e9; color: #2e7d32; }
+        .status.cancelled { background-color: #ffebee; color: #c62828; }
+
+        /* Styling für die Action-Buttons */
+        .actions-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+            transition: transform 0.1s;
+        }
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+<nav>
+    <div class="left-section">
+        <img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img">
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a class="active" th:href="@{/bookings/today}">Today's Bookings</a></li>
+        <li><a th:href="@{/log}">Audit Log</a></li>
+    </ul>
+
+    <div class="profile-box" style="cursor: pointer;" onclick="document.getElementById('logout-form').submit();" title="Click to Logout">
+        <img th:src="@{/images/mariaBerger.png}" alt="profile">
+        <span th:text="${#authentication.name}">User</span>
+        <form id="logout-form" th:action="@{/logout}" method="post" style="display: none;"></form>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Today's Bookings</h1>
+    <p class="subtitle" th:text="'Overview for ' + ${#temporals.format(todayDate, 'dd.MM.yyyy')}">Overview</p>
+
+    <div class="card">
+
+        <div th:if="${bookings.empty}" style="text-align: center; padding: 3rem; color: #666;">
+            <h3>No bookings for today</h3>
+            <p>There are no scheduled bookings for the current date.</p>
+        </div>
+
+        <div class="table-scroll" th:unless="${bookings.empty}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Event Title</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Participant</th>
+                    <th>Ref. Number</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="booking : ${bookings}">
+                    <td>
+                        <a th:href="@{'/events/details/' + ${booking.event.id}}"
+                           th:text="${booking.event.name}"
+                           style="font-weight:bold; color:inherit; text-decoration:none;">
+                            Event Name
+                        </a>
+                    </td>
+
+                    <td>
+                        <span th:text="${#temporals.format(booking.event.startDateTime, 'HH:mm')}">10:00</span>
+                        -
+                        <span th:text="${#temporals.format(booking.event.endDateTime, 'HH:mm')}">12:00</span>
+                    </td>
+
+                    <td>
+                        <span th:text="${booking.event.location?.city}">City</span>
+                    </td>
+
+                    <td>
+                        <span th:text="${booking.customer.firstName} + ' ' + ${booking.customer.lastName}">Name</span>
+                        <br>
+                        <span style="font-size: 0.8em; color: #666;" th:text="${booking.ticketCount} + ' Tickets'">1 Tickets</span>
+                    </td>
+
+                    <td th:text="${booking.bookingNumber}" style="font-family: monospace;">B-12345</td>
+
+                    <td>
+                        <span th:classappend="'status ' + ${booking.status.name().toLowerCase()}"
+                              th:text="${booking.status}">CONFIRMED</span>
+                    </td>
+
+                    <td class="actions">
+                        <div class="actions-inner">
+
+                            <form th:if="${booking.status.name() != 'CHECKED_IN'}"
+                                  th:action="@{'/bookings/checkin/' + ${booking.id}}"
+                                  method="post">
+                                <button type="submit" class="btn-primary"
+                                        style="padding: 5px 10px; font-size: 0.8rem; background-color: #2e7d32; border: none; color: white; cursor: pointer; border-radius: 4px;"
+                                        title="Check-In Guest">
+                                    Check-In
+                                </button>
+                            </form>
+
+                            <span th:if="${booking.status.name() == 'CHECKED_IN'}"
+                                  style="color: #2e7d32; font-weight: bold; font-size: 0.9rem;">
+                                ✓ Arrived
+                            </span>
+
+                            <form th:action="@{'/invoices/generate/' + ${booking.id}}" method="post">
+                                <button type="submit" class="btn-icon" title="Generate/View Invoice">
+                                    📄
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>About | Contact us | Blog | Affiliates | Help</p>
+    <div class="footer-logo">
+        <img th:src="@{/images/logo-footer.svg}" alt="Logo" class="footer-logo">
+    </div>
+</footer>
+
+</body>
+</html>

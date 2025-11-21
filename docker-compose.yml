@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: eventaro # Default database name
+    # Port mapping
+    ports:
+      - '5433:5432'
+    # Volume mapping for the database
+    volumes:
+      - ./data:/var/lib/postgresql/data
