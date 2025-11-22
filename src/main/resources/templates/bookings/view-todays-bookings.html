@@ -42,6 +42,8 @@
         <li><a th:href="@{/dashboard}">Dashboard</a></li>
         <li><a th:href="@{/events/view}">Events / Bookings</a></li>
         <li><a class="active" th:href="@{/bookings/today}">Today's Bookings</a></li>
+        <li><a th:href="@{/categories}">Categories</a></li>
+        <li><a th:href="@{/organizers}">Organizers</a></li>
         <li><a th:href="@{/log}">Audit Log</a></li>
     </ul>
 
@@ -87,9 +89,9 @@
                     </td>
 
                     <td>
-                        <span th:text="${#temporals.format(booking.event.startDateTime, 'HH:mm')}">10:00</span>
+                        <span th:text="${#temporals.format(booking.eventDate.startDateTime, 'HH:mm')}">10:00</span>
                         -
-                        <span th:text="${#temporals.format(booking.event.endDateTime, 'HH:mm')}">12:00</span>
+                        <span th:text="${#temporals.format(booking.eventDate.endDateTime, 'HH:mm')}">12:00</span>
                     </td>
 
                     <td>

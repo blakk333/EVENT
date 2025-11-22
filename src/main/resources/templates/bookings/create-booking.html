@@ -34,8 +34,14 @@
         <div style="background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #ddd;">
             <h3 th:text="${event.name}" style="margin-bottom: 0.5rem; color: #1C481C;">Event Name</h3>
             <p style="color: #666;">
-                <strong>Date:</strong> <span th:text="${#temporals.format(event.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
-                <strong>Price per Ticket:</strong> €<span id="basePrice" th:text="${event.basePrice}">50.00</span>
+                <strong>Available Dates:</strong>
+            <ul style="margin: 0.5rem 0 1rem 1.5rem; color: #555;">
+                <li th:each="d : ${event.dates}">
+                    <span th:text="${#temporals.format(d.startDateTime, 'dd.MM.yyyy HH:mm')}"></span> -
+                    <span th:text="${#temporals.format(d.endDateTime, 'HH:mm')}"></span>
+                </li>
+            </ul>
+            <strong>Price per Ticket:</strong> €<span id="basePrice" th:text="${event.basePrice}">50.00</span>
             </p>
         </div>
 

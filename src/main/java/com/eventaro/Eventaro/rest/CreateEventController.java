@@ -2,7 +2,7 @@ package com.eventaro.Eventaro.rest;
 
 import com.eventaro.Eventaro.domain.model.Event;
 import com.eventaro.Eventaro.datatransfer.*;
-import com.eventaro.Eventaro.service.EventService;
+import com.eventaro.Eventaro.service.EventService; // <--- DIESER IMPORT FEHLTE
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

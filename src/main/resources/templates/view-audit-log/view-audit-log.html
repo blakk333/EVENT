@@ -16,6 +16,9 @@
         <li><a th:href="@{/dashboard}">Dashboard</a></li>
         <li><a th:href="@{/events/view}">Events / Bookings</a></li>
         <li><a th:href="@{/bookings/today}">Today's Bookings</a></li>
+        <li><a th:href="@{/categories}">Categories</a></li>
+        <li><a th:href="@{/organizers}">Organizers</a></li>
+
         <li><a class="active" th:href="@{/log}">Audit Log</a></li>
     </ul>
     <div class="profile-box" style="cursor: pointer;" onclick="document.getElementById('logout-form').submit();">
@@ -47,7 +50,7 @@
                     <td th:text="${log.username}" style="font-weight: bold;">User</td>
                     <td>
                         <span class="status"
-                              th:classappend="${log.action == 'CREATE_EVENT' ? 'active' : (log.action == 'CREATE_BOOKING' ? 'paid' : 'pending')}"
+                              th:classappend="${log.action == 'CREATE_EVENT' || log.action == 'UPDATE_EVENT' ? 'active' : (log.action == 'CREATE_BOOKING' ? 'paid' : 'pending')}"
                               th:text="${log.action}">Action</span>
                     </td>
                     <td th:text="${log.details}" style="text-align: left;">Details...</td>

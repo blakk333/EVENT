@@ -2,7 +2,7 @@ package com.eventaro.Eventaro.domain.model;
 
 import com.eventaro.Eventaro.enums.*;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,11 +19,7 @@ public class Event {
     @Column(name = "base_price", nullable = false)
     private Double basePrice;
 
-    @Column(name = "startDateTime",nullable = false)
-    private LocalDateTime startDateTime;
-
-    @Column(name = "endDateTime", nullable = false)
-    private LocalDateTime endDateTime;
+    // --- GELÖSCHT: startDateTime / endDateTime ---
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -56,14 +52,12 @@ public class Event {
             @AttributeOverride(name="postalCode",  column=@Column(name="loc_postal_code")),
             @AttributeOverride(name="city",        column=@Column(name="loc_city")),
             @AttributeOverride(name="country",     column=@Column(name="loc_country"))
-    })//ist nur dafür da das man die SPaltennamen in der Datenbank umbenennen kann. Falls weietere Embedded Spalten dazukommen um sie unterscheiden zu können
+    })
     private Address location;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id", nullable = false)
     private Organizer organizer;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -77,136 +71,54 @@ public class Event {
     )
     private List<AdditionalService> additionalServices;
 
+    // --- NEU: Liste der Termine ---
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventDate> dates = new ArrayList<>();
+
     public Event() {}
 
-
-   // --------------------- GETTER AND SETTER ---------------------------
-
-    public Integer getId() {
-        return id;
+    // Hilfsmethode
+    public void addDate(EventDate date) {
+        dates.add(date);
+        date.setEvent(this);
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    // Getter und Setter
+    // ... (alle anderen wie vorher) ...
 
-    public String getName() {
-        return name;
-    }
+    // NEU für Dates
+    public List<EventDate> getDates() { return dates; }
+    public void setDates(List<EventDate> dates) { this.dates = dates; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    // WICHTIG: Löschen Sie die alten getStartDateTime/setStartDateTime und EndDateTime!
 
-    public Double getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(Double basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
-    }
-
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
-    public LocalDateTime getEndDateTime() {
-        return endDateTime;
-    }
-
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getMaxNumberOfParticipants() {
-        return maxNumberOfParticipants;
-    }
-
-    public void setMaxNumberOfParticipants(Integer maxNumberOfParticipants) {
-        this.maxNumberOfParticipants = maxNumberOfParticipants;
-    }
-
-    public Integer getMinNumberOfParticipants() {
-        return minNumberOfParticipants;
-    }
-
-    public void setMinNumberOfParticipants(Integer minNumberOfParticipants) {
-        this.minNumberOfParticipants = minNumberOfParticipants;
-    }
-
-    public ScheduleType getScheduleType() {
-        return scheduleType;
-    }
-
-    public void setScheduleType(ScheduleType scheduleType) {
-        this.scheduleType = scheduleType;
-    }
-
-    public EventStatus getStatusOfEvent() {
-        return statusOfEvent;
-    }
-
-    public void setStatusOfEvent(EventStatus statusOfEvent) {
-        this.statusOfEvent = statusOfEvent;
-    }
-
-    public SkillLevel getSkillLevel() {
-        return skillLevel;
-    }
-
-    public void setSkillLevel(SkillLevel skillLevel) {
-        this.skillLevel = skillLevel;
-    }
-
-    public byte[] getCoverImage() {
-        return coverImage;
-    }
-
-    public void setCoverImage(byte[] coverImage) {
-        this.coverImage = coverImage;
-    }
-
-    public Address getLocation() {
-        return location;
-    }
-
-    public void setLocation(Address location) {
-        this.location = location;
-    }
-
-    public Organizer getOrganizer() {
-        return organizer;
-    }
-
-    public void setOrganizer(Organizer organizer) {
-        this.organizer = organizer;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public List<AdditionalService> getAdditionalServices() {
-        return additionalServices;
-    }
-
-    public void setAdditionalServices(List<AdditionalService> additionalServices) {
-        this.additionalServices = additionalServices;
-    }
+    // RESTLICHE GETTER/SETTER hier einfügen (gekürzt für Übersicht)
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public Double getBasePrice() { return basePrice; }
+    public void setBasePrice(Double basePrice) { this.basePrice = basePrice; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Integer getMaxNumberOfParticipants() { return maxNumberOfParticipants; }
+    public void setMaxNumberOfParticipants(Integer maxNumberOfParticipants) { this.maxNumberOfParticipants = maxNumberOfParticipants; }
+    public Integer getMinNumberOfParticipants() { return minNumberOfParticipants; }
+    public void setMinNumberOfParticipants(Integer minNumberOfParticipants) { this.minNumberOfParticipants = minNumberOfParticipants; }
+    public ScheduleType getScheduleType() { return scheduleType; }
+    public void setScheduleType(ScheduleType scheduleType) { this.scheduleType = scheduleType; }
+    public EventStatus getStatusOfEvent() { return statusOfEvent; }
+    public void setStatusOfEvent(EventStatus statusOfEvent) { this.statusOfEvent = statusOfEvent; }
+    public SkillLevel getSkillLevel() { return skillLevel; }
+    public void setSkillLevel(SkillLevel skillLevel) { this.skillLevel = skillLevel; }
+    public byte[] getCoverImage() { return coverImage; }
+    public void setCoverImage(byte[] coverImage) { this.coverImage = coverImage; }
+    public Address getLocation() { return location; }
+    public void setLocation(Address location) { this.location = location; }
+    public Organizer getOrganizer() { return organizer; }
+    public void setOrganizer(Organizer organizer) { this.organizer = organizer; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
+    public List<AdditionalService> getAdditionalServices() { return additionalServices; }
+    public void setAdditionalServices(List<AdditionalService> additionalServices) { this.additionalServices = additionalServices; }
 }

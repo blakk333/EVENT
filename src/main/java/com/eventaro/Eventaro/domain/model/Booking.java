@@ -14,18 +14,19 @@ public class Booking {
     private Integer id;
 
     @Column(nullable = false)
-    private String bookingNumber; // Z.B. "B-2025-1001"
+    private String bookingNumber;
 
+    // --- GEÄNDERT: Statt Event referenzieren wir jetzt den konkreten Termin ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @JoinColumn(name = "event_date_id", nullable = false)
+    private EventDate eventDate;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @Column(nullable = false)
-    private Integer ticketCount; // Anzahl der gebuchten Plätze
+    private Integer ticketCount;
 
     @Column(nullable = false)
     private Double totalPrice;
@@ -42,16 +43,28 @@ public class Booking {
 
     public Booking() {
         this.bookingDate = LocalDateTime.now();
-        this.status = BookingStatus.CONFIRMED; // Standardmäßig bestätigt für Demo
+        this.status = BookingStatus.CONFIRMED;
     }
 
-    // Getter und Setter (Kurzfassung für Übersicht)
+    // Getter und Setter
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getBookingNumber() { return bookingNumber; }
     public void setBookingNumber(String bookingNumber) { this.bookingNumber = bookingNumber; }
-    public Event getEvent() { return event; }
-    public void setEvent(Event event) { this.event = event; }
+
+    // --- NEUE GETTER/SETTER ---
+    public EventDate getEventDate() { return eventDate; }
+    public void setEventDate(EventDate eventDate) { this.eventDate = eventDate; }
+
+    // Hilfsmethode: Damit alter Code wie booking.getEvent().getName() leichter repariert werden kann
+    public Event getEvent() {
+        if (eventDate != null) {
+            return eventDate.getEvent();
+        }
+        return null;
+    }
+
+    // Restliche Getter/Setter
     public Customer getCustomer() { return customer; }
     public void setCustomer(Customer customer) { this.customer = customer; }
     public Integer getTicketCount() { return ticketCount; }

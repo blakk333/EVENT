@@ -1,7 +1,7 @@
 package com.eventaro.Eventaro.rest;
 
 import com.eventaro.Eventaro.domain.model.Event;
-import com.eventaro.Eventaro.service.EventService;
+import com.eventaro.Eventaro.service.EventService; // <--- DIESER IMPORT FEHLTE
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +25,4 @@ public class EventViewController {
         model.addAttribute("events", events);
         return "view-event-list-backoffice/view-events";
     }
-
-
 }

@@ -5,7 +5,7 @@ import com.eventaro.Eventaro.domain.model.Event;
 import com.eventaro.Eventaro.enums.Country;
 import com.eventaro.Eventaro.enums.PaymentMethod;
 import com.eventaro.Eventaro.service.BookingService;
-import com.eventaro.Eventaro.service.EventService;
+import com.eventaro.Eventaro.service.EventService; // <--- DIESER IMPORT FEHLTE
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,7 +58,7 @@ public class BookingFormController {
 
         try {
             bookingService.createBooking(request);
-            // Erfolgreich -> Weiterleitung zur Tagesübersicht (oder einer Success-Page)
+            // Erfolgreich -> Weiterleitung zur Tagesübersicht
             return "redirect:/bookings/today";
         } catch (Exception e) {
             // Fehler (z.B. ausgebucht) im Formular anzeigen
@@ -71,11 +71,10 @@ public class BookingFormController {
         }
     }
 
-    // 3. NEU: Check-In Action (POST Request vom Button)
+    // 3. Check-In Action (POST Request vom Button)
     @PostMapping("/checkin/{id}")
     public String checkInGuest(@PathVariable Integer id) {
         bookingService.checkInGuest(id);
-        // Wir bleiben auf der Übersicht, damit man gleich den nächsten einchecken kann
         return "redirect:/bookings/today";
     }
 }

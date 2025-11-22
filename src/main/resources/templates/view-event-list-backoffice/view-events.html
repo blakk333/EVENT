@@ -16,6 +16,7 @@
     <ul class="nav-links">
         <li><a th:href="@{/dashboard}">Dashboard</a></li>
         <li><a class="active" th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a th:href="@{/bookings/today}">Today's Bookings</a></li>
         <li><a th:href="@{/categories}">Categories</a></li>
         <li><a th:href="@{/organizers}">Organizers</a></li>
         <li><a th:href="@{/log}">Audit Log</a></li>
@@ -56,7 +57,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                <!-- Thymeleaf Loop für jedes Event -->
                 <tr th:each="event : ${events}">
                     <td>
                         <span class="event-title" th:text="${event.name}">Event Name</span><br>
@@ -64,17 +64,22 @@
                     <td th:text="${event.category?.name}">Category</td>
                     <td th:text="${event.organizer?.organizationName}">Organizer</td>
                     <td th:text="${event.scheduleType}">Schedule Type</td>
-                    <td th:text="${#temporals.format(event.startDateTime, 'dd.MM.yyyy')}">Date</td>
-                    <td>-</td> <!-- Cancellation Date - später implementieren -->
+                    <td>
+                        <div th:if="${!event.dates.empty}">
+                            <span th:text="${#temporals.format(event.dates[0].startDateTime, 'dd.MM.yyyy')}">Date</span>
+                            <span th:if="${event.dates.size() > 1}" style="color: #666; font-size: 0.8em;">(+ more)</span>
+                        </div>
+                        <span th:if="${event.dates.empty}">-</span>
+                    </td>
+                    <td>-</td>
                     <td th:text="'€' + ${#numbers.formatDecimal(event.basePrice, 1, 2)}">Price</td>
                     <td th:text="${event.maxNumberOfParticipants}">Capacity</td>
                     <td>
-                    <span th:classappend="'status ' + ${event.statusOfEvent.name().toLowerCase()}"
+                    <span th:classappend="'status ' + ${event.statusOfEvent?.name()?.toLowerCase()}"
                           th:text="${event.statusOfEvent}">Status</span>
                     </td>
                     <td class="actions">
                         <div class="actions-inner">
-                            <!-- View Button -->
                             <button class="btn-view"
                                     th:onclick="'location.href=\'/events/details/' + ${event.id} + '\''">
                                 <svg width="20" height="30" viewBox="0 0 24 24" fill="none" stroke="#1C481C"
@@ -84,7 +89,6 @@
                                 </svg>
                             </button>
 
-                            <!-- Edit Button -->
                             <button class="btn-edit"
                                     th:onclick="'location.href=\'/events/edit/' + ${event.id} + '\''">
                                 <svg width="20" height="30" viewBox="0 0 24 24" fill="none" stroke="#f08c00"
@@ -95,10 +99,7 @@
                             </button>
                         </div>
                     </td>
-
-
                 </tr>
-
                 </tbody>
             </table>
         </div>

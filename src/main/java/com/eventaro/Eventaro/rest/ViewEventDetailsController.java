@@ -2,7 +2,7 @@ package com.eventaro.Eventaro.rest;
 
 import com.eventaro.Eventaro.domain.model.Event;
 import com.eventaro.Eventaro.persistence.EventRepository;
-import com.eventaro.Eventaro.service.EventService;
+import com.eventaro.Eventaro.service.EventService; // <--- DIESER IMPORT FEHLTE
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

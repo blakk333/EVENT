@@ -6,6 +6,42 @@
     <title>Create Event | Eventaro</title>
     <link th:href="@{/css/create-event/style-create-event.css}" rel="stylesheet"/>
     <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+    <style>
+        /* Kleines Styling für den Generator-Bereich */
+        .generator-box {
+            background-color: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #bbdefb;
+            grid-column: 1 / -1; /* Volle Breite */
+            display: none; /* Standardmäßig versteckt */
+            margin-bottom: 1rem;
+        }
+        .generator-box.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        .date-list-preview {
+            grid-column: 1 / -1;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 0.5rem;
+            background: #fafafa;
+        }
+        .date-row-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .date-row-item:last-child { border-bottom: none; }
+    </style>
 </head>
 <body>
 <nav>
@@ -15,6 +51,7 @@
     <ul class="nav-links">
         <li><a th:href="@{/dashboard}">Dashboard</a></li>
         <li><a class="active" th:href="@{/events/view}">Events / Bookings</a></li>
+        <li><a th:href="@{/bookings/today}">Today's Bookings</a></li>
         <li><a th:href="@{/categories}">Categories</a></li>
         <li><a th:href="@{/organizers}">Organizers</a></li>
         <li><a th:href="@{/log}">Audit Log</a></li>
@@ -27,183 +64,176 @@
 
 <div class="page">
     <div class="container narrow">
-        <h1 class="text-center">Create new Event</h1>
+        <h1 class="text-center" th:text="${editMode} ? 'Edit Event' : 'Create new Event'">Create new Event</h1>
 
-        <form th:action="@{/events/create}"
+        <form th:action="${editMode} ? @{'/events/edit/' + ${eventId}} : @{/events/create}"
               th:object="${createEventRequest}"
               method="post"
               enctype="multipart/form-data"
               novalidate
-              class="form-grid">
+              class="form-grid"
+              id="eventForm">
 
-            <!-- IMAGE -->
             <div class="form-group full-width">
                 <label>Event Image</label>
                 <input type="file" name="imageFile" accept="image/*">
             </div>
 
-            <!-- ORGANIZER -->
             <div class="form-group">
                 <label>Organizer*</label>
-                <select th:field="*{organizerId}" required
-                        th:classappend="${#fields.hasErrors('organizerId')} ? 'error-field'">
+                <select th:field="*{organizerId}" required th:classappend="${#fields.hasErrors('organizerId')} ? 'error-field'">
                     <option value="">Select organizer</option>
                     <option th:each="org : ${organizers}" th:value="${org.id}" th:text="${org.organizationName}"></option>
                 </select>
                 <div class="field-error" th:if="${#fields.hasErrors('organizerId')}" th:errors="*{organizerId}"></div>
             </div>
 
-            <!-- TITLE -->
             <div class="form-group">
                 <label>Title*</label>
-                <input type="text" th:field="*{title}" placeholder="Event title" required
-                       th:classappend="${#fields.hasErrors('title')} ? 'error-field'">
+                <input type="text" th:field="*{title}" placeholder="Event title" required th:classappend="${#fields.hasErrors('title')} ? 'error-field'">
                 <div class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
             </div>
 
-            <!-- CATEGORY -->
             <div class="form-group">
                 <label>Category*</label>
-                <select th:field="*{categoryId}" required
-                        th:classappend="${#fields.hasErrors('categoryId')} ? 'error-field'">
+                <select th:field="*{categoryId}" required th:classappend="${#fields.hasErrors('categoryId')} ? 'error-field'">
                     <option value="">Select category</option>
                     <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
                 </select>
                 <div class="field-error" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
             </div>
 
-            <!-- SKILL LEVEL -->
             <div class="form-group">
                 <label>Skill Level*</label>
-                <select th:field="*{skillLevel}" required
-                        th:classappend="${#fields.hasErrors('skillLevel')} ? 'error-field'">
+                <select th:field="*{skillLevel}" required th:classappend="${#fields.hasErrors('skillLevel')} ? 'error-field'">
                     <option value="">Select skill level</option>
-                    <option th:each="level : ${skillLevels}"
-                            th:value="${level}"
-                            th:text="${#strings.capitalize(level.name().toLowerCase())}">
-                    </option>
+                    <option th:each="level : ${skillLevels}" th:value="${level}" th:text="${#strings.capitalize(level.name().toLowerCase())}"></option>
                 </select>
                 <div class="field-error" th:if="${#fields.hasErrors('skillLevel')}" th:errors="*{skillLevel}"></div>
             </div>
 
-            <!-- START / END -->
-            <div class="form-group">
-                <label>Start Date*</label>
-                <input type="date" th:field="*{startDate}" required
-                       th:classappend="${#fields.hasErrors('startDate')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
+            <div class="section-heading full-width">
+                <h3>Date & Schedule</h3>
+            </div>
+
+            <div class="form-group full-width checkbox-group" style="flex-direction: row; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" th:field="*{recurring}" id="recurringCheckbox" onchange="toggleRecurrenceBox()" style="width: auto;">
+                <label for="recurringCheckbox" style="margin:0;">Recurring Event (Series)</label>
             </div>
 
             <div class="form-group">
-                <label>End Date*</label>
-                <input type="date" th:field="*{endDate}" required
-                       th:classappend="${#fields.hasErrors('endDate')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></div>
+                <label>First Start Date*</label>
+                <input type="date" id="baseStartDate" required onchange="updateGeneratorPreview()">
             </div>
-
             <div class="form-group">
-                <label>Start time*</label>
-                <input type="time" th:field="*{startTime}" required
-                       th:classappend="${#fields.hasErrors('startTime')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></div>
+                <label>Start Time*</label>
+                <input type="time" id="baseStartTime" required onchange="updateGeneratorPreview()">
             </div>
-
             <div class="form-group">
-                <label>End time*</label>
-                <input type="time" th:field="*{endTime}" required
-                       th:classappend="${#fields.hasErrors('endTime')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></div>
+                <label>First End Date*</label>
+                <input type="date" id="baseEndDate" required onchange="updateGeneratorPreview()">
+            </div>
+            <div class="form-group">
+                <label>End Time*</label>
+                <input type="time" id="baseEndTime" required onchange="updateGeneratorPreview()">
             </div>
 
-            <!-- PARTICIPANTS / PRICE -->
+            <div class="generator-box" id="recurrenceOptions">
+                <div class="form-group">
+                    <label>Cycle (Repeat)</label>
+                    <select id="cycleType">
+                        <option value="DAILY">Daily</option>
+                        <option value="WEEKLY" selected>Weekly</option>
+                        <option value="BIWEEKLY">Bi-Weekly (14 days)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Repeat Until (End of Series)</label>
+                    <input type="date" id="seriesEndDate">
+                </div>
+                <div class="form-group" style="justify-content: end;">
+                    <button type="button" class="btn-primary" onclick="generateDates()" style="height: 42px;">Generate Dates</button>
+                </div>
+                <div class="full-width">
+                    <small style="color: #666;">Click "Generate" to create the list of dates below.</small>
+                </div>
+            </div>
+
+            <div class="full-width">
+                <label>Scheduled Dates List</label>
+                <div id="dates-container" class="date-list-preview">
+                    <div class="date-row-item" th:each="dateItem, stat : *{dates}">
+                         <span class="preview-text">
+                             <span th:text="${dateItem.startDate}"></span> <span th:text="${dateItem.startTime}"></span> -
+                             <span th:text="${dateItem.endDate}"></span> <span th:text="${dateItem.endTime}"></span>
+                         </span>
+                        <button type="button" class="btn-cancel" onclick="removeDateRow(this)" style="margin-left: auto; padding: 2px 8px; font-size: 0.8rem;">Remove</button>
+
+                        <input type="hidden" th:name="|dates[${stat.index}].startDate|" th:value="${dateItem.startDate}">
+                        <input type="hidden" th:name="|dates[${stat.index}].startTime|" th:value="${dateItem.startTime}">
+                        <input type="hidden" th:name="|dates[${stat.index}].endDate|" th:value="${dateItem.endDate}">
+                        <input type="hidden" th:name="|dates[${stat.index}].endTime|" th:value="${dateItem.endTime}">
+                    </div>
+                </div>
+                <div class="field-error" th:if="${#fields.hasErrors('dates')}" th:errors="*{dates}"></div>
+            </div>
             <div class="form-group">
                 <label>Min. participants*</label>
-                <input type="number" th:field="*{minParticipants}" min="1" required
-                       th:classappend="${#fields.hasErrors('minParticipants')} ? 'error-field'">
+                <input type="number" th:field="*{minParticipants}" min="1" required th:classappend="${#fields.hasErrors('minParticipants')} ? 'error-field'">
                 <div class="field-error" th:if="${#fields.hasErrors('minParticipants')}" th:errors="*{minParticipants}"></div>
             </div>
 
             <div class="form-group">
                 <label>Max. participants*</label>
-                <input type="number" th:field="*{maxParticipants}" min="1" required
-                       th:classappend="${#fields.hasErrors('maxParticipants')} ? 'error-field'">
+                <input type="number" th:field="*{maxParticipants}" min="1" required th:classappend="${#fields.hasErrors('maxParticipants')} ? 'error-field'">
                 <div class="field-error" th:if="${#fields.hasErrors('maxParticipants')}" th:errors="*{maxParticipants}"></div>
             </div>
 
             <div class="form-group">
                 <label>Price (€)*</label>
-                <input type="number" th:field="*{price}" placeholder="0.00" min="0" step="0.01" required
-                       th:classappend="${#fields.hasErrors('price')} ? 'error-field'">
+                <input type="number" th:field="*{price}" placeholder="0.00" min="0" step="0.01" required th:classappend="${#fields.hasErrors('price')} ? 'error-field'">
                 <div class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
             </div>
 
             <div class="form-group full-width">
                 <label>Description</label>
-                <textarea th:field="*{description}" rows="3" placeholder="Event description"
-                          th:classappend="${#fields.hasErrors('description')} ? 'error-field'"></textarea>
-                <div class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                <textarea th:field="*{description}" rows="3" placeholder="Event description" th:classappend="${#fields.hasErrors('description')} ? 'error-field'"></textarea>
             </div>
 
-            <!-- ADDRESS -->
             <div class="section-heading full-width"><h3>Address</h3></div>
 
             <div class="form-group">
                 <label>Street*</label>
-                <input type="text" th:field="*{location.street}"
-                       th:classappend="${#fields.hasErrors('location.street')} ? 'error-field'">
+                <input type="text" th:field="*{location.street}" th:classappend="${#fields.hasErrors('location.street')} ? 'error-field'">
                 <div class="field-error" th:if="${#fields.hasErrors('location.street')}" th:errors="*{location.street}"></div>
             </div>
 
             <div class="form-group">
                 <label>House No.</label>
-                <input type="text" th:field="*{location.houseNumber}"
-                       th:classappend="${#fields.hasErrors('location.houseNumber')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('location.houseNumber')}" th:errors="*{location.houseNumber}"></div>
+                <input type="text" th:field="*{location.houseNumber}" th:classappend="${#fields.hasErrors('location.houseNumber')} ? 'error-field'">
             </div>
 
             <div class="form-group">
                 <label>ZIP code*</label>
-                <input type="text" th:field="*{location.postalCode}"
-                       th:classappend="${#fields.hasErrors('location.postalCode')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('location.postalCode')}" th:errors="*{location.postalCode}"></div>
+                <input type="text" th:field="*{location.postalCode}" th:classappend="${#fields.hasErrors('location.postalCode')} ? 'error-field'">
             </div>
 
             <div class="form-group">
                 <label>City*</label>
-                <input type="text" th:field="*{location.city}"
-                       th:classappend="${#fields.hasErrors('location.city')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('location.city')}" th:errors="*{location.city}"></div>
+                <input type="text" th:field="*{location.city}" th:classappend="${#fields.hasErrors('location.city')} ? 'error-field'">
             </div>
 
-            <!--<div class="form-group">
-                <label>Country*</label>
-                <input type="text" th:field="*{location.country}"
-                       th:classappend="${#fields.hasErrors('location.country')} ? 'error-field'">
-                <div class="field-error" th:if="${#fields.hasErrors('location.country')}" th:errors="*{location.country}"></div>
-            </div>-->
-
-            <!-- COUNTRY -->
             <div class="form-group">
                 <label>Country*</label>
-                <select th:field="*{location.country}" required
-                        th:classappend="${#fields.hasErrors('location.country')} ? 'error-field'">
+                <select th:field="*{location.country}" required th:classappend="${#fields.hasErrors('location.country')} ? 'error-field'">
                     <option value="">Select country</option>
-                    <option th:each="c : ${countries}"
-                            th:value="${c}"
-                            th:text="${#strings.capitalize(c.name().toLowerCase())}">
-                    </option>
+                    <option th:each="c : ${countries}" th:value="${c}" th:text="${#strings.capitalize(c.name().toLowerCase())}"></option>
                 </select>
-
-                <div class="field-error"
-                     th:if="${#fields.hasErrors('location.country')}"
-                     th:errors="*{location.country}">
-                </div>
             </div>
-
 
             <div class="button-group full-width">
                 <button type="button" class="btn-cancel" onclick="window.location.href='/events/view'">Cancel</button>
-                <button class="btn-primary" type="submit">Create Event</button>
+                <button class="btn-primary" type="submit" th:text="${editMode} ? 'Save Changes' : 'Create Event'">Create Event</button>
             </div>
 
         </form>
@@ -218,9 +248,145 @@
 </footer>
 
 <script>
+    // Checkbox steuert Sichtbarkeit
+    function toggleRecurrenceBox() {
+        const checkBox = document.getElementById('recurringCheckbox');
+        const box = document.getElementById('recurrenceOptions');
+
+        if (checkBox.checked) {
+            box.classList.add('active');
+        } else {
+            box.classList.remove('active');
+            // Wenn man den Haken entfernt, behalten wir die Liste bei (oder resetten auf 1 Termin)
+            // Hier Entscheidung: Wir lassen die Liste wie sie ist, User kann manuell löschen.
+        }
+        updateGeneratorPreview();
+    }
+
+    // Wenn man oben was eingibt, soll er ggf. schon den ersten Termin in die Liste packen (wenn Liste leer)
+    function updateGeneratorPreview() {
+        const container = document.getElementById('dates-container');
+        const isRecurring = document.getElementById('recurringCheckbox').checked;
+
+        // Wenn NICHT Recurring und Liste leer -> Automatisch den Einzeltermin hinzufügen
+        if (!isRecurring && container.children.length === 0) {
+            addSingleDateFromBase();
+        }
+    }
+
+    function addSingleDateFromBase() {
+        const sDate = document.getElementById('baseStartDate').value;
+        const sTime = document.getElementById('baseStartTime').value;
+        const eDate = document.getElementById('baseEndDate').value;
+        const eTime = document.getElementById('baseEndTime').value;
+
+        if(sDate && sTime && eDate && eTime) {
+            addDateRowHtml(sDate, sTime, eDate, eTime);
+        }
+    }
+
+    // Kern-Funktion: Termine generieren
+    function generateDates() {
+        const sDateStr = document.getElementById('baseStartDate').value;
+        const sTimeStr = document.getElementById('baseStartTime').value;
+        const eDateStr = document.getElementById('baseEndDate').value;
+        const eTimeStr = document.getElementById('baseEndTime').value;
+        const untilDateStr = document.getElementById('seriesEndDate').value;
+        const cycle = document.getElementById('cycleType').value;
+
+        if (!sDateStr || !untilDateStr) {
+            alert("Please select a Start Date and an 'Until' Date.");
+            return;
+        }
+
+        // Container leeren (optional: oder anhängen?) -> Wir leeren für sauberen Neustart
+        const container = document.getElementById('dates-container');
+        container.innerHTML = '';
+
+        let currStart = new Date(sDateStr);
+        let currEnd = new Date(eDateStr); // Für die Dauer wichtig
+        const untilDate = new Date(untilDateStr);
+
+        // Berechne Dauer des Events in Millisekunden, um das Enddatum korrekt mitzuschieben
+        const durationMs = currEnd - currStart;
+
+        // Loop
+        while (currStart <= untilDate) {
+            // Formatierung für HTML Input (YYYY-MM-DD)
+            const isoStart = currStart.toISOString().split('T')[0];
+            const isoEnd = currEnd.toISOString().split('T')[0];
+
+            addDateRowHtml(isoStart, sTimeStr, isoEnd, eTimeStr);
+
+            // Nächster Schritt
+            if (cycle === 'DAILY') {
+                currStart.setDate(currStart.getDate() + 1);
+                currEnd.setTime(currStart.getTime() + durationMs);
+            } else if (cycle === 'WEEKLY') {
+                currStart.setDate(currStart.getDate() + 7);
+                currEnd.setTime(currStart.getTime() + durationMs);
+            } else if (cycle === 'BIWEEKLY') {
+                currStart.setDate(currStart.getDate() + 14);
+                currEnd.setTime(currStart.getTime() + durationMs);
+            }
+        }
+    }
+
+    // Hilfsfunktion: HTML Zeile einfügen
+    function addDateRowHtml(sDate, sTime, eDate, eTime) {
+        const container = document.getElementById('dates-container');
+        const index = container.children.length;
+
+        const div = document.createElement('div');
+        div.className = 'date-row-item';
+        div.innerHTML = `
+            <span class="preview-text">
+                 ${sDate} ${sTime} - ${eDate} ${eTime}
+            </span>
+            <button type="button" class="btn-cancel" onclick="removeDateRow(this)" style="margin-left: auto; padding: 2px 8px; font-size: 0.8rem;">Remove</button>
+
+            <input type="hidden" name="dates[${index}].startDate" value="${sDate}">
+            <input type="hidden" name="dates[${index}].startTime" value="${sTime}">
+            <input type="hidden" name="dates[${index}].endDate" value="${eDate}">
+            <input type="hidden" name="dates[${index}].endTime" value="${eTime}">
+        `;
+        container.appendChild(div);
+    }
+
+    function removeDateRow(btn) {
+        btn.closest('.date-row-item').remove();
+        reindexDates();
+    }
+
+    // Indizes reparieren [0], [1], [2]... damit Spring das binden kann
+    function reindexDates() {
+        const container = document.getElementById('dates-container');
+        Array.from(container.children).forEach((row, idx) => {
+            row.querySelectorAll('input[type="hidden"]').forEach(input => {
+                // Name anpassen: dates[X].feld -> dates[idx].feld
+                input.name = input.name.replace(/dates\[\d+\]/, `dates[${idx}]`);
+            });
+        });
+    }
+
+    // Beim Laden prüfen
     document.addEventListener('DOMContentLoaded', () => {
-        const today = new Date().toISOString().split('T')[0];
-        document.querySelectorAll('input[type="date"]').forEach(d => d.setAttribute('min', today));
+        const container = document.getElementById('dates-container');
+        // Falls wir im Edit-Modus sind, sind schon Zeilen da.
+        // Falls Create-Modus, ist es leer.
+
+        // Default: Ein Datum hinzufügen, wenn man das Feld verlässt
+        document.getElementById('eventForm').addEventListener('submit', (e) => {
+            // Sicherheitscheck: Liste darf nicht leer sein
+            if(document.getElementById('dates-container').children.length === 0) {
+                // Versuchen, das Basis-Datum zu nutzen
+                addSingleDateFromBase();
+            }
+            if(document.getElementById('dates-container').children.length === 0) {
+                e.preventDefault();
+                alert("Please add at least one date.");
+            }
+        });
     });
 </script>
 </body>
