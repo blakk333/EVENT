@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Services | Front Office</title>
+  <link rel="stylesheet" th:href="@{/css/view-event-list-backoffice/style-view-events.css}">
+  <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+  <style>
+    .service-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: white;
+    }
+    .service-info h4 { margin: 0; color: #1C481C; }
+    .service-price { font-weight: bold; color: #F1911B; }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="left-section">
+    <span style="font-weight: bold; font-size: 1.2rem; color: #1C481C; margin-left: 1rem;">Front Office Desk</span>
+  </div>
+  <ul class="nav-links">
+    <li><a th:href="@{/frontoffice/dashboard}">Overview</a></li>
+    <li><a th:href="@{/frontoffice/walkin}">New Walk-In</a></li>
+  </ul>
+  <div class="profile-box" onclick="document.getElementById('logout-form').submit();">
+    <img th:src="@{/images/mariaBerger.png}" alt="profile">
+    <form id="logout-form" th:action="@{/logout}" method="post" style="display: none;"></form>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Add Services</h1>
+  <p class="subtitle">Booking Ref: <span th:text="${booking.bookingNumber}" style="font-family: monospace; font-weight: bold;"></span></p>
+
+  <div class="card">
+    <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+      <h3>Guest: <span th:text="${booking.customer.firstName} + ' ' + ${booking.customer.lastName}">Name</span></h3>
+      <p>Event: <span th:text="${booking.event.name}">Event</span></p>
+
+      <div th:if="${!booking.bookedServices.empty}" style="margin-top: 1rem; background: #f9f9f9; padding: 1rem; border-radius: 4px;">
+        <strong>Already booked:</strong>
+        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+          <li th:each="s : ${booking.bookedServices}">
+            <span th:text="${s.name}">Service</span>
+            (<span th:text="'€ ' + ${s.price}"></span>)
+          </li>
+        </ul>
+        <p style="margin-top: 0.5rem; text-align: right;">Current Total: <strong th:text="'€ ' + ${booking.totalPrice}">100.00</strong></p>
+      </div>
+      <div th:if="${booking.bookedServices.empty}" style="margin-top: 1rem; color: #666;">
+        No services booked yet.
+      </div>
+    </div>
+
+    <h3>Available Add-ons</h3>
+    <form th:action="@{'/frontoffice/booking/' + ${booking.id} + '/addons'}" method="post">
+
+      <div th:if="${availableServices.empty}" style="text-align: center; color: #666; padding: 2rem;">
+        No additional services available for this event.
+      </div>
+
+      <div th:each="service : ${availableServices}" class="service-option">
+        <div class="service-info">
+          <h4 th:text="${service.name}">Dinner</h4>
+          <small th:text="${service.description}">Tasty meal after event</small>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <span class="service-price" th:text="'€ ' + ${service.price}">€ 15.00</span>
+          <input type="checkbox" name="selectedServices" th:value="${service.id}">
+        </div>
+      </div>
+
+      <div class="button-group" style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+        <a th:href="@{/frontoffice/dashboard}" class="btn-cancel">Cancel</a>
+        <button type="submit" class="create-btn" style="border: none;">Add Selected Services</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

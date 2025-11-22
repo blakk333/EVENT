@@ -6,7 +6,11 @@ import jakarta.validation.constraints.*;
 
 public class CreateBookingRequest {
 
+    // GEÄNDERT: Wir brauchen jetzt die ID des konkreten Termins
     @NotNull
+    private Integer eventDateId;
+
+    // Optional: EventId kann für die Navigation bleiben, wird aber für die Buchung selbst zweitrangig
     private Integer eventId;
 
     @Min(1) @Max(50)
@@ -25,11 +29,15 @@ public class CreateBookingRequest {
     private String phoneNumber;
 
     @Valid
-    private AddressDTO address = new AddressDTO(); // Dein existierendes AddressDTO nutzen
+    private AddressDTO address = new AddressDTO();
 
     // Getter und Setter
+    public Integer getEventDateId() { return eventDateId; }
+    public void setEventDateId(Integer eventDateId) { this.eventDateId = eventDateId; }
+
     public Integer getEventId() { return eventId; }
     public void setEventId(Integer eventId) { this.eventId = eventId; }
+
     public Integer getTicketCount() { return ticketCount; }
     public void setTicketCount(Integer ticketCount) { this.ticketCount = ticketCount; }
     public PaymentMethod getPaymentMethod() { return paymentMethod; }

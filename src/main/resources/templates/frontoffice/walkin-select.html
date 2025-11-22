@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Event | Front Office</title>
+    <link rel="stylesheet" th:href="@{/css/view-event-list-backoffice/style-view-events.css}">
+    <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+<body>
+<nav>
+    <div class="left-section">
+        <span style="font-weight: bold; font-size: 1.2rem; color: #1C481C; margin-left: 1rem;">Front Office Desk</span>
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/frontoffice/dashboard}">Overview</a></li>
+        <li><a class="active" th:href="@{/frontoffice/walkin}">New Walk-In</a></li>
+    </ul>
+    <div class="profile-box" onclick="document.getElementById('logout-form').submit();">
+        <img th:src="@{/images/mariaBerger.png}" alt="profile">
+        <form id="logout-form" th:action="@{/logout}" method="post" style="display: none;"></form>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Select Event for Walk-In</h1>
+    <p class="subtitle">Choose an event to register a new guest</p>
+
+    <div class="card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date & Time</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="event : ${events}">
+                    <td th:text="${event.name}" style="font-weight: bold;">Event Name</td>
+                    <td>
+                        <span th:text="${#temporals.format(event.startDateTime, 'dd.MM.yyyy HH:mm')}">Date</span>
+                    </td>
+                    <td th:text="'€ ' + ${event.basePrice}">Price</td>
+                    <td class="actions">
+                        <div class="actions-inner">
+                            <a th:href="@{'/frontoffice/walkin/' + ${event.id}}"
+                               class="create-btn"
+                               style="padding: 6px 12px; font-size: 0.9rem; text-decoration: none;">
+                                Select
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

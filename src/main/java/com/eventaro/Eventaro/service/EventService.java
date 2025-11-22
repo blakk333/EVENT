@@ -44,10 +44,10 @@ public class EventService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
-        // 2. Adresse mappen (Hilfsmethode unten nutzen)
+        // 2. Adresse mappen
         Address address = mapAddress(request.getLocation());
 
-        // 3. Event Basisdaten setzen
+        // 3. Event erstellen
         Event event = new Event();
         event.setName(request.getTitle());
         event.setBasePrice(request.getPrice());
@@ -61,24 +61,24 @@ public class EventService {
         event.setCategory(category);
         event.setLocation(address);
 
-        // --- NEU: Loop über die Liste der Termine aus dem Generator ---
-        if (request.getDates() != null) {
-            for (CreateEventRequest.EventDateDTO dto : request.getDates()) {
-                LocalDateTime start = LocalDateTime.of(dto.getStartDate(), dto.getStartTime());
-                LocalDateTime end = LocalDateTime.of(dto.getEndDate(), dto.getEndTime());
+        // --- LOGIK-ANPASSUNG FÜR KOMPATIBILITÄT ---
+        // Wir nehmen die Einzelwerte aus dem Formular und erstellen den ersten Termin
+        if (request.getStartDate() != null && request.getStartTime() != null) {
+            LocalDateTime start = LocalDateTime.of(request.getStartDate(), request.getStartTime());
+            LocalDateTime end = LocalDateTime.of(request.getEndDate(), request.getEndTime());
 
-                EventDate date = new EventDate(start, end, event);
-                event.addDate(date);
-            }
+            // Neuen Termin erstellen und hinzufügen
+            EventDate mainDate = new EventDate(start, end, event);
+            event.addDate(mainDate);
         }
-        // --------------------------------------------------------------
+        // -------------------------------------------
 
         // Bild speichern
         if (imageFile != null && !imageFile.isEmpty()) {
             event.setCoverImage(imageFile.getBytes());
         }
 
-        // Zusätzliche Services speichern
+        // Zusätzliche Services
         if (request.getAdditionalPackages() != null && !request.getAdditionalPackages().isEmpty()) {
             List<AdditionalService> services = new ArrayList<>();
             for (DTOAdditionalServices pkg : request.getAdditionalPackages()) {
@@ -102,7 +102,6 @@ public class EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
-        // Beziehungen updaten
         if (!event.getOrganizer().getId().equals(request.getOrganizerId())) {
             Organizer organizer = organizerRepository.findById(request.getOrganizerId())
                     .orElseThrow(() -> new EntityNotFoundException("Organizer not found"));
@@ -115,7 +114,6 @@ public class EventService {
             event.setCategory(category);
         }
 
-        // Basisdaten updaten
         event.setName(request.getTitle());
         event.setBasePrice(request.getPrice());
         event.setDescription(request.getDescription());
@@ -124,24 +122,18 @@ public class EventService {
         event.setSkillLevel(request.getSkillLevel());
         event.setScheduleType(request.isRecurring() ? ScheduleType.RECURRING : ScheduleType.ONE_TIME);
 
-        // Adresse updaten
         Address newAddr = mapAddress(request.getLocation());
         event.setLocation(newAddr);
 
-        // --- NEU: Termine aktualisieren (Liste leeren und neu befüllen) ---
-        event.getDates().clear(); // Alte Termine löschen
-        if (request.getDates() != null) {
-            for (CreateEventRequest.EventDateDTO dto : request.getDates()) {
-                LocalDateTime start = LocalDateTime.of(dto.getStartDate(), dto.getStartTime());
-                LocalDateTime end = LocalDateTime.of(dto.getEndDate(), dto.getEndTime());
-
-                EventDate date = new EventDate(start, end, event);
-                event.addDate(date);
-            }
+        // Update Logik: Alte Termine löschen und durch neuen aus Formular ersetzen
+        event.getDates().clear();
+        if (request.getStartDate() != null) {
+            LocalDateTime start = LocalDateTime.of(request.getStartDate(), request.getStartTime());
+            LocalDateTime end = LocalDateTime.of(request.getEndDate(), request.getEndTime());
+            EventDate mainDate = new EventDate(start, end, event);
+            event.addDate(mainDate);
         }
-        // ------------------------------------------------------------------
 
-        // Bild updaten
         if (imageFile != null && !imageFile.isEmpty()) {
             event.setCoverImage(imageFile.getBytes());
         }
@@ -150,7 +142,6 @@ public class EventService {
         auditLogService.log("UPDATE_EVENT", "Updated event: '" + event.getName() + "' (ID: " + event.getId() + ")");
     }
 
-    // Hilfsmethode für Adress-Mapping (vermeidet doppelten Code)
     private Address mapAddress(AddressDTO loc) {
         Address address = new Address();
         address.setStreet(loc.getStreet());

@@ -36,27 +36,28 @@ public class SecurityConfig {
                         // 3. Buchungsprozess (Gäste müssen zugreifen können)
                         .requestMatchers("/bookings/**").permitAll()
 
-                        // 4. Geschützte Bereiche (Nur für Admins / Backoffice)
+                        // 4. Front Office Bereich (Neu)
+                        .requestMatchers("/frontoffice/**").hasAnyRole("FRONT_OFFICE", "ADMIN")
+
+                        // 5. Geschützte Bereiche (Nur für Admins / Backoffice)
                         .requestMatchers("/events/create", "/events/edit/**", "/events/delete/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard", "/log").hasRole("ADMIN")
-                        .requestMatchers("/invoices/**").hasRole("ADMIN") // Rechnungen nur für Admins
+                        .requestMatchers("/invoices/**").hasRole("ADMIN")
 
-                        // 5. Alles andere sperren
+                        // 6. Alles andere sperren
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Unsere eigene HTML Seite
-                        .defaultSuccessUrl("/dashboard", true) // Nach Login immer zum Dashboard
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/dashboard", true) // Standard Redirect, wird oft durch SavedRequest überschrieben
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout") // Nach Logout zurück zum Login
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                // CSRF ignorieren wir für dieses Projekt temporär, um Probleme mit POST-Buttons zu vermeiden
-                // (In Produktion würde man das aktivieren und Tokens im HTML nutzen)
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable()); // Für Demo deaktiviert
 
         return http.build();
     }

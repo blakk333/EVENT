@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Front Office Dashboard | Eventaro</title>
+  <link rel="stylesheet" th:href="@{/css/view-event-list-backoffice/style-view-events.css}">
+  <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+<body>
+<nav>
+  <div class="left-section">
+    <span style="font-weight: bold; font-size: 1.2rem; color: #1C481C; margin-left: 1rem;">Front Office Desk</span>
+  </div>
+  <ul class="nav-links">
+    <li><a class="active" th:href="@{/frontoffice/dashboard}">Overview</a></li>
+    <li><a th:href="@{/frontoffice/walkin}">New Walk-In</a></li>
+  </ul>
+  <div class="profile-box" style="cursor: pointer;" onclick="document.getElementById('logout-form').submit();" title="Click to Logout">
+    <img th:src="@{/images/mariaBerger.png}" alt="profile">
+    <span th:text="${#authentication.name}">User</span>
+    <form id="logout-form" th:action="@{/logout}" method="post" style="display: none;"></form>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Front Office Dashboard</h1>
+  <p class="subtitle" th:text="'Date: ' + ${#temporals.format(todayDate, 'dd.MM.yyyy')}">Date</p>
+
+  <div th:if="${param.success}" style="background: #e8f5e9; color: #2e7d32; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; border: 1px solid #c8e6c9;">
+    Success! The action was completed successfully.
+  </div>
+
+  <div class="card">
+    <h3>Today's Guests</h3>
+
+    <div class="top-actions">
+      <a th:href="@{/frontoffice/walkin}" class="create-btn" style="background-color: #2e7d32;">+ New Walk-In Guest</a>
+    </div>
+
+    <div th:if="${bookings.empty}" style="text-align: center; padding: 2rem; color: #666;">
+      No guests or bookings found for today.
+    </div>
+
+    <div class="table-scroll" th:unless="${bookings.empty}">
+      <table>
+        <thead>
+        <tr>
+          <th>Event</th>
+          <th>Guest Name</th>
+          <th>Tickets</th>
+          <th>Ref. No.</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="booking : ${bookings}">
+          <td th:text="${booking.event.name}">Event</td>
+          <td th:text="${booking.customer.firstName} + ' ' + ${booking.customer.lastName}">Name</td>
+          <td th:text="${booking.ticketCount}">1</td>
+          <td th:text="${booking.bookingNumber}" style="font-family: monospace;">B-123</td>
+          <td>
+                        <span th:classappend="'status ' + ${booking.status.name().toLowerCase()}"
+                              th:text="${booking.status}">CONFIRMED</span>
+          </td>
+          <td class="actions">
+            <div class="actions-inner">
+              <form th:if="${booking.status.name() == 'CONFIRMED'}"
+                    th:action="@{'/bookings/checkin/' + ${booking.id}}"
+                    method="post">
+                <button type="submit" style="background-color: #2e7d32; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                  Check-In
+                </button>
+              </form>
+
+              <span th:if="${booking.status.name() == 'CHECKED_IN'}" style="color: #2e7d32; font-weight: bold; margin-right: 10px;">
+                                ✓ Arrived
+                            </span>
+
+              <a th:href="@{'/frontoffice/booking/' + ${booking.id} + '/addons'}"
+                 style="background-color: #F1911B; color: white; border: none; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; display: flex; align-items: center;"
+                 title="Add Services">
+                + Add-on
+              </a>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

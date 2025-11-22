@@ -12,15 +12,7 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-    // Angepasst: Geht jetzt über b.eventDate (ed)
-    // Wir laden EventDate (ed) und das Event (e) gleich mit (JOIN FETCH)
-    @Query("""
-        SELECT b 
-        FROM Booking b 
-        JOIN FETCH b.eventDate ed 
-        JOIN FETCH ed.event e 
-        WHERE ed.startDateTime BETWEEN :start AND :end 
-        ORDER BY ed.startDateTime ASC
-    """)
+    // GEÄNDERT: Navigation über eventDate (b.eventDate.startDateTime)
+    @Query("SELECT b FROM Booking b JOIN FETCH b.eventDate ed JOIN FETCH ed.event e WHERE ed.startDateTime BETWEEN :start AND :end ORDER BY ed.startDateTime ASC")
     List<Booking> findBookingsForEventDateRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

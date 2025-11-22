@@ -2,6 +2,7 @@ package com.eventaro.Eventaro.domain.model;
 
 import com.eventaro.Eventaro.enums.*;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,9 @@ public class Event {
     @Column(name = "base_price", nullable = false)
     private Double basePrice;
 
-    // --- GELÖSCHT: startDateTime / endDateTime ---
+    // --- GEÄNDERT: Liste statt Einzelwerte ---
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<EventDate> dates = new ArrayList<>();
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -71,28 +74,31 @@ public class Event {
     )
     private List<AdditionalService> additionalServices;
 
-    // --- NEU: Liste der Termine ---
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventDate> dates = new ArrayList<>();
-
     public Event() {}
 
-    // Hilfsmethode
+    // --- NEUE METHODEN ---
     public void addDate(EventDate date) {
         dates.add(date);
         date.setEvent(this);
     }
 
-    // Getter und Setter
-    // ... (alle anderen wie vorher) ...
+    public List<EventDate> getDates() {
+        return dates;
+    }
 
-    // NEU für Dates
-    public List<EventDate> getDates() { return dates; }
-    public void setDates(List<EventDate> dates) { this.dates = dates; }
+    public void setDates(List<EventDate> dates) {
+        this.dates = dates;
+    }
 
-    // WICHTIG: Löschen Sie die alten getStartDateTime/setStartDateTime und EndDateTime!
+    // Helper für Kompatibilität (gibt Start des ersten Termins zurück)
+    public LocalDateTime getStartDateTime() {
+        if (dates != null && !dates.isEmpty()) {
+            return dates.get(0).getStartDateTime();
+        }
+        return null;
+    }
 
-    // RESTLICHE GETTER/SETTER hier einfügen (gekürzt für Übersicht)
+    // Standard Getter & Setter
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getName() { return name; }
