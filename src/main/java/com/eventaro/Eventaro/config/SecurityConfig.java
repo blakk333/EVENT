@@ -26,38 +26,32 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Statische Ressourcen (CSS, Bilder) IMMER erlauben
+                        // Statische Ressourcen
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
 
-                        // 2. Öffentliche Seiten (Login, Fehler)
-                        .requestMatchers("/login", "/register", "/error").permitAll()
+                        // Öffentliche Seiten (Home, Details, Login, Register)
+                        .requestMatchers("/", "/login", "/register", "/error").permitAll()
+                        .requestMatchers("/events/details/**", "/events/details/*/image").permitAll()
 
-                        // 3. NEU: Startseite und Bilder öffentlich machen
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/events/view", "/events/details/**").permitAll()
+                        // Backoffice nur für Admin/Mitarbeiter
+                        .requestMatchers("/dashboard", "/log", "/categories/**", "/organizers/**").hasAnyRole("ADMIN", "FRONT_OFFICE")
+                        .requestMatchers("/events/create", "/events/edit/**").hasRole("ADMIN")
 
-                        // 4. Buchungsprozess (Formular und Bestätigung)
-                        .requestMatchers("/bookings/**").permitAll()
+                        // Buchungsprozess (Login erforderlich für finales Buchen, Formular anzeigen geht evtl. auch so, aber wir sichern ab)
+                        .requestMatchers("/bookings/create/**").authenticated() // Nur eingeloggte User dürfen buchen
 
-                        // 5. Geschützte Bereiche (Nur für Admins / Backoffice)
-                        .requestMatchers("/events/create", "/events/edit/**", "/events/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/dashboard", "/log").hasRole("ADMIN")
-                        .requestMatchers("/invoices/**").hasRole("ADMIN")
-
-                        // 6. Alles andere sperren
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Unsere eigene HTML Seite
-                        .defaultSuccessUrl("/dashboard", true) // Nach Login immer zum Dashboard
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true) // Nach Login zur Homepage
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout") // Nach Logout zurück zum Login
+                        .logoutSuccessUrl("/") // Nach Logout zur Homepage
                         .permitAll()
                 )
-                // CSRF ignorieren wir für dieses Projekt temporär
                 .csrf(csrf -> csrf.disable());
 
         return http.build();

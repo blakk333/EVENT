@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventaro | Outdoor Adventures</title>
+  <link th:href="@{/css/view-event-list-backoffice/style-view-events.css}" rel="stylesheet"/>
+  <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+  <style>
+    /* Custom Homepage Styles overwriting generic ones */
+    .hero-banner {
+      background-color: #1C481C;
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+      margin-top: -20px; /* offset nav padding */
+      margin-bottom: 2rem;
+    }
+    .hero-banner h1 { color: white; margin-bottom: 1rem; }
+    .hero-banner p { font-size: 1.2rem; opacity: 0.9; }
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 0 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .event-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .event-card:hover { transform: translateY(-5px); }
+    .event-img {
+      height: 200px;
+      width: 100%;
+      object-fit: cover;
+      background-color: #ddd;
+    }
+    .event-content { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .event-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #1C481C; }
+    .event-meta { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+    .event-price { font-size: 1.2rem; font-weight: bold; color: #F1911B; margin-top: auto; }
+    .btn-book {
+      display: block;
+      text-align: center;
+      background: #F1911B;
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .btn-book:hover { background: #d97b00; }
+
+    /* Navbar specific for Home */
+    .auth-buttons { display: flex; gap: 1rem; }
+    .btn-outline { border: 1px solid #1C481C; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: #1C481C; }
+    .btn-solid { background: #1C481C; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="left-section">
+    <a href="/"><img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img"></a>
+  </div>
+
+  <div class="right-section" sec:authorize="isAuthenticated()">
+    <div class="profile-box" onclick="window.location.href='/dashboard'" style="cursor: pointer;">
+      <img th:src="@{/images/mariaBerger.png}" alt="User">
+      <span sec:authentication="name">User</span>
+    </div>
+    <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 10px;">
+      <button type="submit" style="background:none; border:none; cursor:pointer; text-decoration:underline;">Logout</button>
+    </form>
+  </div>
+
+  <div class="right-section auth-buttons" sec:authorize="!isAuthenticated()">
+    <a th:href="@{/login}" class="btn-outline">Login</a>
+    <a th:href="@{/register}" class="btn-solid">Register</a>
+  </div>
+</nav>
+
+<div class="hero-banner">
+  <h1>Find Your Next Adventure</h1>
+  <p>Discover unique outdoor events, workshops, and experiences curated just for you.</p>
+</div>
+
+<div class="container" style="padding: 0;">
+  <div class="event-grid">
+    <div class="event-card" th:each="event : ${events}">
+      <img th:src="@{'/events/details/' + ${event.id} + '/image'}"
+           class="event-img"
+           onerror="this.src='https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=500&q=80'">
+
+      <div class="event-content">
+        <div class="event-title" th:text="${event.name}">Mountain Hiking</div>
+
+        <div class="event-meta">
+          <span th:text="${#temporals.format(event.startDateTime, 'dd. MMM yyyy')}">Date</span> |
+          <span th:text="${event.location?.city}">City</span>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #555; line-height: 1.4; margin-bottom: 1rem;"
+           th:text="${#strings.abbreviate(event.description, 100)}">Description...</p>
+
+        <div class="event-price">
+          € <span th:text="${#numbers.formatDecimal(event.basePrice, 1, 2)}">50.00</span>
+        </div>
+
+        <a th:href="@{'/events/details/' + ${event.id}}" class="btn-book">View Details & Book</a>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${events.empty}" style="text-align: center; padding: 4rem;">
+    <p>No events available at the moment. Please check back later!</p>
+  </div>
+</div>
+
+<footer>
+  <p>About | Contact us | Blog | Affiliates | Help</p>
+  <div class="footer-logo">
+    <img th:src="@{/images/logo-footer.svg}" alt="Logo" class="footer-logo">
+  </div>
+</footer>
+
+</body>
+</html>
