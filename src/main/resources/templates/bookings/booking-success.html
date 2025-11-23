@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Buchung erfolgreich! | Eventaro</title>
+  <link rel="stylesheet" th:href="@{/css/create-event/style-create-event.css}">
+  <link th:href="@{/css/header_footer_backoffice.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<nav>
+  <div class="left-section">
+    <a th:href="@{/}"><img th:src="@{/images/logo.svg}" alt="Logo" class="logo-img"></a>
+  </div>
+</nav>
+
+<div class="page" style="text-align: center;">
+  <div class="container narrow" style="background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+
+    <div style="font-size: 4rem; color: #2e7d32; margin-bottom: 1rem;">✓</div>
+
+    <h1 style="margin-bottom: 1rem;">Vielen Dank für deine Buchung!</h1>
+    <p class="subtitle" style="margin-bottom: 2rem;">Deine Buchung wurde erfolgreich entgegengenommen.</p>
+
+    <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; text-align: left; margin-bottom: 2rem;">
+      <p><strong>Buchungsnummer:</strong> <span th:text="${booking?.bookingNumber}">B-123456</span></p>
+      <p><strong>Event:</strong> <span th:text="${booking?.event?.name}">Canyoning</span></p>
+      <p><strong>Datum:</strong> <span th:text="${#temporals.format(booking?.event?.startDateTime, 'dd.MM.yyyy HH:mm')}">01.01.2025</span></p>
+      <p><strong>Tickets:</strong> <span th:text="${booking?.ticketCount}">2</span></p>
+      <p><strong>Gesamtpreis:</strong> € <span th:text="${#numbers.formatDecimal(booking?.totalPrice, 1, 2)}">100.00</span></p>
+    </div>
+
+    <p style="color: #666; margin-bottom: 2rem;">
+      Du erhältst in Kürze eine Bestätigung per E-Mail an <span th:text="${booking?.customer?.email}" style="font-weight: bold;">mail@example.com</span>.
+    </p>
+
+    <a th:href="@{/}" class="btn-primary">Zurück zur Startseite</a>
+  </div>
+</div>
+
+</body>
+</html>

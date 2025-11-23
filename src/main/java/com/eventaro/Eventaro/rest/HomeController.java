@@ -14,10 +14,12 @@ public class HomeController {
         this.eventService = eventService;
     }
 
-    @GetMapping("/")
+    // KORREKTUR: Pfad auf "/home" geändert, um Konflikt mit PublicEventController zu lösen
+    @GetMapping("/home")
     public String home(Model model) {
-        // Wir laden alle Events für die Homepage
         model.addAttribute("events", eventService.getAllEvents());
-        return "index"; // Unsere neue Homepage
+        // WICHTIG: Stellen Sie sicher, dass eine Datei 'src/main/resources/templates/index.html' existiert!
+        // Falls nicht, ändern Sie dies auf eine existierende View (z.B. "view-event-list-backoffice/view-events")
+        return "index";
     }
 }
