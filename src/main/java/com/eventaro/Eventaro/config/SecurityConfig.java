@@ -1,11 +1,9 @@
 package com.eventaro.Eventaro.config;
 
-import com.eventaro.Eventaro.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,30 +14,30 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
-
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    // WICHTIG: Wir entfernen hier den Konstruktor und die Variable für CustomUserDetailsService.
+    // Spring findet den Service automatisch, weil er ein @Bean (via @Service) ist.
+    // Das verhindert den "Could not postProcess"-Fehler.
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Statische Ressourcen
+                        // 1. Statische Ressourcen (CSS, Bilder)
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
 
-                        // Öffentliche Seiten (Home, Details, Login, Register)
+                        // 2. Öffentliche Seiten
                         .requestMatchers("/", "/login", "/register", "/error").permitAll()
                         .requestMatchers("/events/details/**", "/events/details/*/image").permitAll()
 
-                        // Backoffice nur für Admin/Mitarbeiter
+                        // 3. Backoffice: Nur für Mitarbeiter/Admins
                         .requestMatchers("/dashboard", "/log", "/categories/**", "/organizers/**").hasAnyRole("ADMIN", "FRONT_OFFICE")
                         .requestMatchers("/events/create", "/events/edit/**").hasRole("ADMIN")
+                        .requestMatchers("/invoices/**").hasAnyRole("ADMIN", "FRONT_OFFICE")
 
-                        // Buchungsprozess (Login erforderlich für finales Buchen, Formular anzeigen geht evtl. auch so, aber wir sichern ab)
-                        .requestMatchers("/bookings/create/**").authenticated() // Nur eingeloggte User dürfen buchen
+                        // 4. Buchungsprozess: Nur eingeloggte User
+                        .requestMatchers("/bookings/create/**").authenticated()
 
+                        // 5. Alles andere sperren
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -52,7 +50,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/") // Nach Logout zur Homepage
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable()); // CSRF deaktivieren für einfache Entwicklung
 
         return http.build();
     }
@@ -63,10 +61,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(authProvider);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }
