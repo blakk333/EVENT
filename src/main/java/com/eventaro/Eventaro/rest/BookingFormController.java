@@ -1,11 +1,12 @@
 package com.eventaro.Eventaro.rest;
 
 import com.eventaro.Eventaro.datatransfer.CreateBookingRequest;
+import com.eventaro.Eventaro.domain.model.Booking;
 import com.eventaro.Eventaro.domain.model.Event;
 import com.eventaro.Eventaro.enums.Country;
 import com.eventaro.Eventaro.enums.PaymentMethod;
 import com.eventaro.Eventaro.service.BookingService;
-import com.eventaro.Eventaro.service.EventService; // <--- DIESER IMPORT FEHLTE
+import com.eventaro.Eventaro.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,9 +58,12 @@ public class BookingFormController {
         }
 
         try {
-            bookingService.createBooking(request);
-            // Erfolgreich -> Weiterleitung zur Tagesübersicht
-            return "redirect:/bookings/today";
+            // Änderung: Service gibt das Booking zurück, damit wir die ID haben
+            Booking booking = bookingService.createBooking(request);
+
+            // Änderung: Redirect zur öffentlichen Bestätigungsseite
+            return "redirect:/bookings/confirmation/" + booking.getId();
+
         } catch (Exception e) {
             // Fehler (z.B. ausgebucht) im Formular anzeigen
             model.addAttribute("errorMessage", e.getMessage());
@@ -71,7 +75,16 @@ public class BookingFormController {
         }
     }
 
-    // 3. Check-In Action (POST Request vom Button)
+    // 3. NEU: Öffentliche Bestätigungsseite
+    @GetMapping("/confirmation/{bookingId}")
+    public String showConfirmation(@PathVariable Integer bookingId, Model model) {
+        // Hier könnte man das Booking laden, um Details anzuzeigen
+        // Wir übergeben die ID, falls man sie im Template braucht
+        model.addAttribute("bookingId", bookingId);
+        return "public/booking-success";
+    }
+
+    // 4. Check-In Action (Backoffice Funktionalität)
     @PostMapping("/checkin/{id}")
     public String checkInGuest(@PathVariable Integer id) {
         bookingService.checkInGuest(id);

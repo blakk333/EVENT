@@ -29,15 +29,15 @@ public class SecurityConfig {
                         // 1. Statische Ressourcen (CSS, Bilder) IMMER erlauben
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
 
-                        // 2. Öffentliche Seiten (Login, Fehler, Events ansehen)
+                        // 2. Öffentliche Seiten (Login, Fehler)
                         .requestMatchers("/login", "/register", "/error").permitAll()
+
+                        // 3. NEU: Startseite und Bilder öffentlich machen
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/events/view", "/events/details/**").permitAll()
 
-                        // 3. Buchungsprozess (Gäste müssen zugreifen können)
+                        // 4. Buchungsprozess (Formular und Bestätigung)
                         .requestMatchers("/bookings/**").permitAll()
-
-                        // 4. Front Office Bereich (Neu)
-                        .requestMatchers("/frontoffice/**").hasAnyRole("FRONT_OFFICE", "ADMIN")
 
                         // 5. Geschützte Bereiche (Nur für Admins / Backoffice)
                         .requestMatchers("/events/create", "/events/edit/**", "/events/delete/**").hasRole("ADMIN")
@@ -48,16 +48,17 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true) // Standard Redirect, wird oft durch SavedRequest überschrieben
+                        .loginPage("/login") // Unsere eigene HTML Seite
+                        .defaultSuccessUrl("/dashboard", true) // Nach Login immer zum Dashboard
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessUrl("/login?logout") // Nach Logout zurück zum Login
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable()); // Für Demo deaktiviert
+                // CSRF ignorieren wir für dieses Projekt temporär
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }

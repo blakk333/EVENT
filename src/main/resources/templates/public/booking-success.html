@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Confirmed | Eventaro</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FBF7E9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .success-card {
+      background: white;
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 90%;
+    }
+    .icon-circle {
+      width: 80px; height: 80px;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+      margin: 0 auto 1.5rem;
+    }
+    h1 { color: #1C481C; margin-bottom: 0.5rem; }
+    p { color: #666; line-height: 1.6; margin-bottom: 2rem; }
+
+    .btn-home {
+      display: inline-block;
+      background-color: #F1911B;
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-home:hover { background-color: #d97b00; }
+
+    .booking-ref {
+      background: #eee; padding: 0.5rem 1rem; border-radius: 4px;
+      font-family: monospace; font-size: 1.1rem; color: #333;
+      display: inline-block; margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="success-card">
+  <div class="icon-circle">✓</div>
+  <h1>Booking Successful!</h1>
+  <p>Thank you for booking with Eventaro. Your adventure awaits! We have saved your booking details.</p>
+
+  <a th:href="@{/}" class="btn-home">Back to Events</a>
+</div>
+
+</body>
+</html>
