@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head><title>Kontingent reservieren</title></head>
+<body>
+<div layout:fragment="content" th:with="activeMenuItem='management'">
+  <div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <h2>Kontingent reservieren (WI #82)</h2>
+    <p class="subtitle">Plätze blocken, ohne konkrete Namen zu nennen.</p>
+
+    <form th:action="@{/agencies/contingent/save}" method="post">
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Event wählen</label>
+        <select name="eventId" required style="width: 100%; padding: 8px;">
+          <option th:each="e : ${events}" th:value="${e.id}" th:text="${e.title} + ' (' + ${#temporals.format(e.dates[0], 'dd.MM.')} + ')'"></option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Partner wählen</label>
+        <select name="clientId" required style="width: 100%; padding: 8px;">
+          <option th:each="c : ${clients}" th:value="${c.id}" th:text="${c.name}"></option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Anzahl Plätze (Block)</label>
+        <input type="number" name="count" min="1" value="5" required style="width: 100%; padding: 8px;">
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Reserviert bis (Ablaufdatum)</label>
+        <input type="date" name="expiryDate" required style="width: 100%; padding: 8px;">
+      </div>
+
+      <button type="submit" class="btn-secondary" style="width:100%; background-color: var(--dark-green);">Reservierung speichern</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

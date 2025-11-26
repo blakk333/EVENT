@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Audit Log</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='admin'">
+
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1>System Audit Log</h1>
+        <p class="subtitle">Überwachung aller Systemaktivitäten und Änderungen (WI #84)</p>
+    </div>
+
+    <div class="card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Zeitstempel</th>
+                    <th>Aktionstyp</th>
+                    <th>Beschreibung</th>
+                    <th>Benutzer</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="log : ${auditLogs}">
+                    <td style="white-space: nowrap; color: #666;">
+                        <span th:text="${#temporals.format(log.timestamp, 'dd.MM.yyyy HH:mm')}">Datum</span>
+                    </td>
+                    <td>
+            <span class="status"
+                  th:classappend="${log.type == 'DELETE' ? 'canceled' : (log.type == 'CREATE' ? 'confirmed' : 'pending')}"
+                  th:text="${log.type}">TYP</span>
+                    </td>
+                    <td th:text="${log.message}">Beschreibung</td>
+                    <td>
+                        <strong th:text="${log.user}">User</strong>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p style="margin-top: 1rem; color: #888; font-size: 0.9rem;">
+        * Alle Änderungen werden automatisch protokolliert und sind revisionssicher gespeichert.
+    </p>
+
+</div>
+
+</body>
+</html>

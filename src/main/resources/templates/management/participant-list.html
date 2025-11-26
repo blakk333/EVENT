@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Teilnehmerliste</title>
+    <style>
+        /* Simples Design, optimiert für den Druck */
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 2rem; color: #333; }
+        .header { border-bottom: 2px solid #333; padding-bottom: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
+        h1 { margin: 0; font-size: 1.8rem; color: #1a4026; }
+        .meta { font-size: 0.9rem; color: #666; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; border-bottom: 2px solid #333; padding: 10px; background: #f0f0f0; font-weight: bold; }
+        td { border-bottom: 1px solid #ddd; padding: 10px; vertical-align: top; }
+        .checkbox-col { width: 50px; text-align: center; border: 1px solid #999; height: 30px; }
+
+        /* Alles mit dieser Klasse wird beim Drucken ausgeblendet */
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; margin: 1cm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print" style="margin-bottom: 2rem; padding: 1rem; background: #fcf9f2; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+    <a th:href="@{/events/view}" style="text-decoration: none; color: #666; font-weight: bold;">&larr; Zurück zur Übersicht</a>
+    <button onclick="window.print()" style="padding: 10px 20px; background: #1a4026; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">🖨️ Liste Drucken</button>
+</div>
+
+<div class="header">
+    <div>
+        <h1>Teilnehmerliste</h1>
+        <h2 th:text="${event.title}" style="margin: 0.5rem 0 0 0; font-size: 1.4rem;">Event Titel</h2>
+        <p style="margin: 5px 0 0 0;">
+            <strong>Ort:</strong> <span th:text="${event.organizer}">Ort</span> |
+            <strong>Kategorie:</strong> <span th:text="${event.category}">Kategorie</span>
+        </p>
+    </div>
+    <div class="meta">
+        <p>Generiert am: <span th:text="${#temporals.format(now, 'dd.MM.yyyy HH:mm')}">Datum</span></p>
+        <p>Guide: ___________________</p>
+    </div>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th style="width: 40px;">#</th>
+        <th>Gast Name</th>
+        <th>Buchungs-Nr.</th>
+        <th>Personen</th>
+        <th>Status / Info</th>
+        <th style="text-align: center;">Anwesend</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p, stat : ${participants}">
+        <td th:text="${stat.count}">1</td>
+        <td>
+            <strong th:text="${p.guestName}">Name</strong>
+            <br><span style="font-size: 0.8rem; color: #666;" th:text="${p.type}">INDIVIDUAL</span>
+        </td>
+        <td th:text="${p.bookingNumber}">B-123</td>
+        <td th:text="${p.participantCount}">1</td>
+        <td>
+            <span th:if="${p.paid}" style="color: green;">✓ Bezahlt</span>
+            <span th:if="${!p.paid}" style="color: #c62828;">! Offen</span>
+            <span th:if="${p.checkedIn}" style="margin-left: 10px; background: #e3f2fd; padding: 2px 5px; border-radius: 3px; font-size: 0.8rem;">Bereits Check-In</span>
+        </td>
+        <td class="checkbox-col"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:if="${participants.empty}" style="padding: 4rem; text-align: center; color: #888; font-style: italic;">
+    -- Keine aktiven Teilnehmer für dieses Event gefunden --
+</div>
+
+</body>
+</html>

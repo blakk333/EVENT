@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kategorien - Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <a th:href="@{/home}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+            <span class="brand-name">Eventaro</span>
+        </a>
+    </div>
+    <div class="nav-links-public">
+        <a th:href="@{/public/events}">Events</a>
+        <a th:href="@{/public/categories}" class="active" style="color: var(--primary-orange);">Kategorien</a>
+        <a th:href="@{/public/about}">Über Uns</a>
+        <a th:href="@{/dashboard}" class="login-btn">Login (Intern)</a>
+    </div>
+</nav>
+
+<section class="bg-creme section-padding" style="min-height: 60vh;">
+    <div class="container">
+        <h1 class="section-title">Entdecke unsere Vielfalt</h1>
+        <p style="text-align: center; max-width: 600px; margin: 0 auto 3rem auto; color: #666;">
+            Egal ob du das Wasser liebst, die Berge erklimmen willst oder einfach nur entspannen möchtest.
+        </p>
+
+        <div class="category-grid">
+            <a th:each="cat : ${categories}"
+               th:href="@{/public/events(category=${cat.name})}"
+               style="text-decoration: none;">
+                <div class="cat-item">
+                    <span th:text="${cat.icon} + ' ' + ${cat.name}">🧗 Klettern</span>
+                </div>
+            </a>
+        </div>
+
+        <div th:if="${categories.empty}" style="text-align:center; color:#888; margin-top: 2rem;">
+            <p>Noch keine Kategorien definiert.</p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>Eventaro &copy; 2025 | Dein Partner für Outdoor-Erlebnisse</p>
+</footer>
+
+</body>
+</html>

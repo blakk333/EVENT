@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+  <title>Dashboard</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='dashboard'">
+
+  <div style="margin-bottom: 2rem;">
+    <h1 style="color: var(--dark-green); font-weight: 700;">Welcome back, <span th:text="${username}">admin</span>!</h1>
+    <p class="subtitle">Overview for <span th:text="${#temporals.format(todayDate, 'EEEE, dd. MMMM yyyy')}">Datum</span></p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+
+    <div class="card stat-card-border-orange">
+      <span class="stat-label">TODAY'S BOOKINGS</span>
+      <span class="stat-value" th:text="${todaysBookingsCount}">0</span>
+      <span class="stat-desc">Guests arriving today</span>
+    </div>
+
+    <div class="card stat-card-border-green">
+      <span class="stat-label">REVENUE TODAY</span>
+      <span class="stat-value">€ <span th:text="${revenueToday}">0</span></span>
+      <span class="stat-desc">Estimated from bookings</span>
+    </div>
+
+    <div class="card stat-card-border-blue">
+      <span class="stat-label">ACTIVE EVENTS</span>
+      <span class="stat-value" th:text="${activeEvents}">0</span>
+      <span class="stat-desc">Events currently published</span>
+    </div>
+
+    <div class="card stat-card-border-red">
+      <span class="stat-label">TOTAL EVENTS</span>
+      <span class="stat-value" th:text="${totalEvents}">0</span>
+      <span class="stat-desc">Events in database</span>
+    </div>
+  </div>
+
+  <h3 style="color: var(--dark-green); font-weight: 700;">Quick Actions</h3>
+
+  <div style="display: flex; gap: 2rem;">
+
+    <div class="card" style="text-align: center; padding: 3rem 2rem; flex: 1; max-width: 500px;">
+      <h2 style="margin-top: 0;">Event Management</h2>
+      <p style="color: #666; margin-bottom: 2rem;">
+        Create new events, manage schedules, or update prices.
+      </p>
+      <a th:href="@{/events/create}" class="btn-secondary">
+        Create Event
+      </a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

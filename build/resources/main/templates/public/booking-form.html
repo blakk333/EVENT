@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Buchen - Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <a th:href="@{/home}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+            <span class="brand-name">Eventaro</span>
+        </a>
+    </div>
+    <div class="nav-links-public">
+        <a th:href="@{/public/events}">Zurück zur Übersicht</a>
+    </div>
+</nav>
+
+<section class="container section-padding">
+    <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <h1 class="section-title" style="margin-bottom: 1rem;">Event Buchen</h1>
+
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid var(--primary-orange);">
+            <h3 style="margin-top: 0; color: var(--dark-green);" th:text="${event.title}">Event Titel</h3>
+            <p style="margin-bottom: 0;">
+                <strong>Ort:</strong> <span th:text="${event.organizer}">Ort</span> |
+                <strong>Preis:</strong> € <span th:text="${#numbers.formatDecimal(event.price, 1, 2)}">0.00</span> p.P.
+            </p>
+        </div>
+
+        <form th:action="@{/public/book}" method="post">
+            <input type="hidden" name="eventId" th:value="${event.id}"/>
+            <input type="hidden" name="eventName" th:value="${event.title}"/>
+            <input type="hidden" name="standardPrice" th:value="${event.price}"/>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Vorname*</label>
+                    <input type="text" name="firstName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Nachname*</label>
+                    <input type="text" name="lastName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">E-Mail Adresse*</label>
+                <input type="email" name="email" required placeholder="name@beispiel.com"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Anzahl Teilnehmer*</label>
+                <input type="number" name="participantCount" value="1" min="1" max="20" required
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Buchungstyp (WI #54)</label>
+                <select id="bookingTypeSelect" name="bookingType" onchange="toggleCompanyField()"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="INDIVIDUAL" selected>Einzelperson (Standard)</option>
+                    <option value="GROUP">Gruppe (ab 10 Pers. Rabatt)</option>
+                    <option value="COMPANY">Firma (Partner-Code erforderlich)</option>
+                    <option value="AGENCY">Agentur (Partner-Code erforderlich)</option>
+                </select>
+            </div>
+
+            <div id="corporateCodeField" style="margin-bottom: 1.5rem; display: none; background-color: #e3f2fd; padding: 15px; border-radius: 4px; border-left: 4px solid #0277bd;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem; color: #0277bd;">Firmen-/Agentur-Code</label>
+                <input type="text" name="partnerCode" placeholder="z.B. FIRM-MUELLER-123"
+                       style="width: 100%; padding: 10px; border: 1px solid #0277bd; border-radius: 4px;">
+                <p style="color: #555; font-size: 0.85rem; margin-top: 5px;">
+                    Bitte geben Sie Ihren Partner-Code ein, um vereinbarte Preise automatisch zu erhalten.
+                </p>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Datum wählen*</label>
+                <select name="dateString" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option th:each="date : ${event.dates}"
+                            th:value="${date}"
+                            th:text="${#temporals.format(date, 'EEEE, dd.MM.yyyy HH:mm')}">Datum</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-orange" style="width: 100%; font-size: 1.1rem;">Kostenpflichtig Buchen</button>
+        </form>
+    </div>
+</section>
+
+<footer>
+    <p>Eventaro &copy; 2025</p>
+</footer>
+
+<script>
+    function toggleCompanyField() {
+        var type = document.getElementById("bookingTypeSelect").value;
+        var codeField = document.getElementById("corporateCodeField");
+
+        if (type === 'COMPANY' || type === 'AGENCY') {
+            codeField.style.display = 'block';
+        } else {
+            codeField.style.display = 'none';
+            // Feld leeren, wenn ausgeblendet, damit nichts falsches gesendet wird
+            codeField.querySelector('input').value = '';
+        }
+    }
+</script>
+
+</body>
+</html>

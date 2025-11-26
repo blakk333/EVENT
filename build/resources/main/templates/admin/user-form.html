@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Neuer Benutzer</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='users'">
+
+    <div style="max-width: 600px; margin: 0 auto;">
+        <h1 style="color: var(--dark-green); margin-bottom: 0.5rem;">Neuen Benutzer anlegen</h1>
+        <p class="subtitle">Erstelle einen Zugang für Mitarbeiter</p>
+
+        <div class="card">
+            <form th:action="@{/users/save}" method="post" th:object="${user}">
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">Username*</label>
+                    <input type="text" th:field="*{username}" required placeholder="z.B. max.muster"
+                           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">Voller Name</label>
+                    <input type="text" th:field="*{fullName}" placeholder="z.B. Max Mustermann"
+                           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">Passwort*</label>
+                    <input type="password" th:field="*{password}" required
+                           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">Rolle*</label>
+                    <select th:field="*{role}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: white;">
+                        <option value="FRONTOFFICE">Front Office (Empfang & Check-In)</option>
+                        <option value="BACKOFFICE">Back Office (Verwaltung)</option>
+                        <option value="ADMIN">Admin (Vollzugriff)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+                    <a th:href="@{/users/manage}" class="btn-secondary">Abbrechen</a>
+                    <button type="submit" class="btn-primary">Benutzer speichern</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Alle Events - Eventaro</title>
+  <link rel="stylesheet" th:href="@{/css/layout.css}">
+  <link rel="stylesheet" th:href="@{/css/components.css}">
+  <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<nav class="public-nav">
+  <div class="logo-container">
+    <a th:href="@{/home}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+      <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+      <span class="brand-name">Eventaro</span>
+    </a>
+  </div>
+  <div class="nav-links-public">
+    <a th:href="@{/public/events}" class="active">Events</a>
+    <a th:href="@{/public/categories}">Kategorien</a>
+    <a th:href="@{/public/about}">Über Uns</a>
+    <a th:href="@{/dashboard}" class="login-btn">Login (Intern)</a>
+  </div>
+</nav>
+
+<section class="container section-padding">
+  <h1 class="section-title" th:if="${activeCategory == null}">Alle verfügbaren Abenteuer</h1>
+
+  <div th:if="${activeCategory != null}" style="text-align:center; margin-bottom: 2rem;">
+    <h1 class="section-title" style="margin-bottom: 0.5rem;" th:text="'Kategorie: ' + ${activeCategory}">Kategorie</h1>
+    <a th:href="@{/public/events}" style="color: var(--primary-orange); text-decoration: underline; font-weight: 500;">
+      ✕ Filter löschen (Alle anzeigen)
+    </a>
+  </div>
+
+  <div class="event-grid">
+    <div class="event-card" th:each="event : ${events}">
+      <div class="event-image-placeholder">
+        <span th:text="${event.title.substring(0,1)}">E</span>
+      </div>
+      <div class="event-details">
+        <span class="event-location" th:text="${event.organizer}">Ort</span>
+        <h3 th:text="${event.title}" style="margin: 0.5rem 0; font-size: 1.2rem;">Titel</h3>
+        <p th:text="${event.description}">Beschreibung</p>
+        <div class="event-footer">
+          <span class="price">ab € <span th:text="${#numbers.formatDecimal(event.price, 1, 2)}">0.00</span></span>
+          <a th:href="@{'/public/book/' + ${event.id}}" class="btn-text" style="text-decoration: none;">
+            Buchen &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${events.empty}" style="text-align:center; margin-top:4rem; color:#888;">
+    <p style="font-size: 1.2rem;">Leider keine Events in dieser Kategorie gefunden.</p>
+    <a th:href="@{/public/categories}" class="btn-secondary" style="margin-top: 1rem; display: inline-block;">Andere Kategorie wählen</a>
+  </div>
+</section>
+
+<footer>
+  <p>Eventaro &copy; 2025 | Dein Partner für Outdoor-Erlebnisse</p>
+</footer>
+
+</body>
+</html>

@@ -1,36 +1,49 @@
 package com.eventaro.Eventaro.rest;
 
-import com.eventaro.Eventaro.domain.model.Invoice;
+import com.eventaro.Eventaro.model.Invoice;
+import com.eventaro.Eventaro.model.PaymentMethod;
+import com.eventaro.Eventaro.service.BookingService;
 import com.eventaro.Eventaro.service.InvoiceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/invoices")
 public class InvoiceController {
 
-    private final InvoiceService invoiceService;
+    @Autowired
+    private InvoiceService invoiceService;
 
-    public InvoiceController(InvoiceService invoiceService) {
-        this.invoiceService = invoiceService;
-    }
+    @Autowired
+    private BookingService bookingService;
 
-    // Aktion: Rechnung generieren (z.B. aus der Buchungsliste)
-    @PostMapping("/generate/{bookingId}")
-    public String generateInvoice(@PathVariable Integer bookingId) {
-        Invoice invoice = invoiceService.createInvoiceFromBooking(bookingId);
-        return "redirect:/invoices/" + invoice.getId(); // Weiterleitung zur Ansicht
-    }
-
-    // Ansicht: Rechnung anzeigen
-    @GetMapping("/{id}")
-    public String viewInvoice(@PathVariable Integer id, Model model) {
+    @GetMapping("/view/{id}")
+    public String viewInvoice(@PathVariable String id, Model model) {
         Invoice invoice = invoiceService.getInvoiceById(id);
+        if (invoice == null) return "redirect:/bookings/today";
+
         model.addAttribute("invoice", invoice);
-        return "invoices/view-invoice";
+        model.addAttribute("relatedInvoices", invoiceService.getInvoicesForBooking(invoice.getBookingRef()));
+
+        bookingService.findByNumber(invoice.getBookingRef())
+                .ifPresent(booking -> model.addAttribute("linkedBooking", booking));
+
+        return "management/invoice-view";
+    }
+
+    @PostMapping("/split")
+    public String splitInvoiceItem(@RequestParam String invoiceId, @RequestParam String itemId) {
+        invoiceService.splitItemToNewInvoice(invoiceId, itemId);
+        return "redirect:/invoices/view/" + invoiceId;
+    }
+
+    // --- NEU: Finalisieren mit Zahlungsmethode ---
+    @PostMapping("/finalize")
+    public String finalizeInvoice(@RequestParam String invoiceId,
+                                  @RequestParam PaymentMethod paymentMethod) {
+        invoiceService.finalizeInvoice(invoiceId, paymentMethod);
+        return "redirect:/invoices/view/" + invoiceId;
     }
 }

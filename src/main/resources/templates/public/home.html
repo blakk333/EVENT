@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Eventaro - Erlebe das Abenteuer</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}"> </head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+        <span class="brand-name">Eventaro</span>
+    </div>
+    <div class="nav-links-public">
+        <a th:href="@{/public/events}">Events</a>
+        <a th:href="@{/public/categories}">Kategorien</a>
+        <a th:href="@{/public/about}">Über Uns</a>
+        <a th:href="@{/dashboard}" class="login-btn">Login (Intern)</a>
+    </div>
+</nav>
+
+<header class="hero-section">
+    <div class="hero-content">
+        <h1>Finde dein nächstes Abenteuer</h1>
+        <p>Entdecke unvergessliche Outdoor-Erlebnisse in deiner Nähe.</p>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Was möchtest du erleben? (z.B. Wandern)">
+            <input type="text" placeholder="Wo? (z.B. Tirol)">
+            <button class="btn-orange">Suchen</button>
+        </div>
+    </div>
+</header>
+
+<section class="container section-padding">
+    <h2 class="section-title">Beliebte Erlebnisse</h2>
+
+    <div class="event-grid">
+        <div class="event-card" th:each="event : ${events}">
+            <div class="event-image-placeholder">
+                <span th:text="${event.title.substring(0,1)}">E</span>
+            </div>
+            <div class="event-details">
+                <span class="event-location" th:text="${event.organizer}">Ort</span>                <h3 th:text="${event.title}">Event Titel</h3>
+                <p th:text="${event.description}">Beschreibung</p>
+                <div class="event-footer">
+                    <span class="price">ab € <span th:text="${#numbers.formatDecimal(event.price, 1, 2)}">0.00</span></span>
+                    <a th:href="@{'/public/book/' + ${event.id}}" class="btn-text" style="text-decoration: none;">
+                        Buchen &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-creme section-padding">
+    <div class="container">
+        <h2 class="section-title">Kategorien entdecken</h2>
+        <div class="category-grid">
+            <div class="cat-item">🧗 Klettern</div>
+            <div class="cat-item">🌊 Wassersport</div>
+            <div class="cat-item">🥾 Wandern</div>
+            <div class="cat-item">❄️ Wintersport</div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>Eventaro &copy; 2025 | Dein Partner für Outdoor-Erlebnisse</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Neues Event erstellen</title>
+    <style>
+        /* Spezifisches Styling für die Recurring-Box aus dem Screenshot */
+        .recurring-box {
+            background-color: #e3f2fd; /* Helles Blau */
+            border: 1px solid #90caf9; /* Etwas dunklerer blauer Rand */
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none; /* Standardmäßig ausgeblendet */
+        }
+
+        .dates-list-container {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            min-height: 40px;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 1.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Hilfsklasse für den Orangen Button */
+        .btn-orange {
+            background-color: var(--primary-orange);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            padding: 0.7rem 1.5rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-orange:hover {
+            background-color: #d68118;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='management'">
+
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1>Create new Event</h1>
+    </div>
+
+    <div class="card" style="max-width: 900px; margin: 0 auto;">
+
+        <form th:action="@{/events/create}" method="post">
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Event Image</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" style="border: 1px solid #ccc; background: #eee; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Datei auswählen</button>
+                    <span style="color: #666;">Keine ausgewählt</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="organizer" style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Organizer*</label>
+                    <select id="organizer" name="organizer" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="" disabled selected>Select organizer</option>
+                        <option th:each="org : ${organizers}" th:value="${org}" th:text="${org}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="title" style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Title*</label>
+                    <input type="text" id="title" name="title" placeholder="Event title" required
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label for="category" style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Category*</label>
+                    <select id="category" name="category" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="" disabled selected>Select category</option>
+                        <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skillLevel" style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Skill Level*</label>
+                    <select id="skillLevel" name="skillLevel" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="" disabled selected>Select skill level</option>
+                        <option th:each="skill : ${skillLevels}" th:value="${skill}" th:text="${skill}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem; margin-bottom: 1.5rem; color: var(--dark-green);">Date & Schedule</h3>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--dark-green); cursor: pointer;">
+                    <input type="checkbox" id="recurringCheckbox" name="recurring" onchange="toggleRecurringSection()">
+                    Recurring Event (Series)
+                </label>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">First Start Date*</label>
+                    <input type="date" name="startDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Start Time*</label>
+                    <input type="time" name="startTime" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">First End Date*</label>
+                    <input type="date" name="endDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">End Time*</label>
+                    <input type="time" name="endTime" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div id="recurringSection" class="recurring-box">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 200px; gap: 1.5rem; align-items: end;">
+                    <div>
+                        <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Cycle (Repeat)</label>
+                        <select name="cycle" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Repeat Until (End of Series)</label>
+                        <input type="date" name="repeatUntil" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <button type="button" class="btn-orange" onclick="generateDummyDates()">Generate Dates</button>
+                    </div>
+                </div>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">Click "Generate" to create the list of dates below.</p>
+            </div>
+
+            <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Scheduled Dates List</label>
+            <div id="datesList" class="dates-list-container"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Min. participants*</label>
+                    <input type="number" name="minParticipants" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Max. participants*</label>
+                    <input type="number" name="maxParticipants" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem; margin-bottom: 1.5rem; color: var(--dark-green);">Details & Requirements</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="requirements" style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Requirements (Voraussetzungen)</label>
+                    <textarea id="requirements" name="requirements" rows="3" placeholder="z.B. Schwindelfreiheit, Mindestalter..."
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="equipment" style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Required Equipment (Ausrüstung)</label>
+                    <textarea id="equipment" name="equipment" rows="3" placeholder="z.B. Wanderschuhe, Handtuch..."
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Price (€)*</label>
+                <input type="number" step="0.01" value="0.00" name="price" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Description</label>
+                <textarea name="description" rows="4" placeholder="Event description" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+                <a th:href="@{/events/view}" class="btn-secondary" style="background-color: #6c757d;">Cancel</a>
+                <button type="submit" class="btn-primary" style="background-color: var(--primary-orange); border: none;">Create Event</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        function toggleRecurringSection() {
+            var checkbox = document.getElementById("recurringCheckbox");
+            var section = document.getElementById("recurringSection");
+
+            if (checkbox.checked) {
+                section.style.display = "block";
+            } else {
+                section.style.display = "none";
+                // Optional: Liste leeren wenn ausgeblendet
+                document.getElementById("datesList").innerHTML = "";
+            }
+        }
+
+        function generateDummyDates() {
+            var container = document.getElementById("datesList");
+            // Dummy Daten generieren für die Demo
+            var html = '<ul style="margin: 0; padding-left: 1.5rem;">';
+            html += '<li>Mo, 01.12.2025 - 10:00 bis 14:00</li>';
+            html += '<li>Mo, 08.12.2025 - 10:00 bis 14:00</li>';
+            html += '<li>Mo, 15.12.2025 - 10:00 bis 14:00</li>';
+            html += '<li>Mo, 22.12.2025 - 10:00 bis 14:00</li>';
+            html += '</ul>';
+
+            container.innerHTML = html;
+        }
+    </script>
+</div>
+
+</body>
+</html>

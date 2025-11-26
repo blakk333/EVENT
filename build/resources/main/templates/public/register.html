@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrieren - Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <a th:href="@{/home}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+            <span class="brand-name">Eventaro</span>
+        </a>
+    </div>
+    <div class="nav-links-public">
+        <a th:href="@{/home}">Startseite</a>
+        <a th:href="@{/login}">Login</a>
+    </div>
+</nav>
+
+<section class="container" style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
+        <h2 style="text-align: center; color: var(--dark-green); margin-bottom: 0.5rem;">Konto erstellen</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 2rem;">Erlebe deine Abenteuer mit Eventaro.</p>
+
+        <form th:action="@{/register}" method="post">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Dein Name</label>
+                <input type="text" name="fullName" placeholder="Max Mustermann" required
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">E-Mail (Login)</label>
+                <input type="text" name="username" placeholder="name@beispiel.com" required
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <small style="color: #888;">Wir verwenden deine E-Mail als Benutzernamen.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Passwort</label>
+                <input type="password" name="password" required
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
+            <button type="submit" class="btn-orange" style="width: 100%; border: none; cursor: pointer;">Kostenlos Registrieren</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+            Bereits registriert? <a th:href="@{/login}" style="color: var(--dark-green); font-weight: bold;">Zum Login</a>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

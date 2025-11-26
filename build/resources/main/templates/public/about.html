@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Über Uns - Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <a th:href="@{/home}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+            <span class="brand-name">Eventaro</span>
+        </a>
+    </div>
+    <div class="nav-links-public">
+        <a th:href="@{/public/events}">Events</a>
+        <a th:href="@{/public/categories}">Kategorien</a>
+        <a th:href="@{/public/about}" class="active" style="color: var(--primary-orange);">Über Uns</a>
+        <a th:href="@{/dashboard}" class="login-btn">Login (Intern)</a>
+    </div>
+</nav>
+
+<section class="container section-padding">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 class="section-title">Wir sind Eventaro</h1>
+
+        <div class="card" style="padding: 2rem; border: none; box-shadow: none; background: transparent;">
+            <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                Eventaro wurde mit einer einfachen Mission gegründet: <strong>Abenteuer für jeden zugänglich zu machen.</strong>
+            </p>
+            <p style="color: #555; line-height: 1.6;">
+                Unser Unternehmen ist in der Veranstaltungsbranche tätig und bietet eine große Vielfalt an Events verschiedenster Anbieter an.
+                Dabei fungieren wir als Vermittler zwischen abenteuerlustigen Kunden und professionellen Veranstaltern.
+            </p>
+            <br>
+            <h3 style="color: var(--dark-green);">Unsere Geschichte</h3>
+            <p style="color: #555; line-height: 1.6;">
+                Das ursprüngliche System wurde von einem engagierten Mitarbeiter entwickelt, stieß aber an seine Grenzen.
+                Mit der neuen Eventaro-Plattform digitalisieren wir Buchungsprozesse und schaffen ein nahtloses Erlebnis – vom "Front Office" am Empfang bis zum "Back Office" in der Verwaltung.
+            </p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>Eventaro &copy; 2025 | Dein Partner für Outdoor-Erlebnisse</p>
+</footer>
+
+</body>
+</html>

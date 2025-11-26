@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Kategorien Verwaltung</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='categories'">
+
+    <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="color: var(--dark-green); margin-bottom: 0.5rem;">Category Management</h1>
+            <p class="subtitle">Manage event categories available in the system</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+            <div>
+                <h3 style="margin-top: 0; color: var(--dark-green);">All Categories</h3>
+            </div>
+            <a th:href="@{/categories/create}" class="btn-primary" style="background-color: var(--primary-orange); border: none;">+ New Category</a>
+        </div>
+
+        <div class="table-scroll">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                <tr style="background-color: #f9f9f9; text-align: left;">
+                    <th style="padding: 12px; border-bottom: 2px solid #eee; color: var(--dark-green);">Icon</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #eee; color: var(--dark-green);">Name</th>
+                    <th style="padding: 12px; border-bottom: 2px solid #eee; color: var(--dark-green);">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="cat : ${categories}" style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; font-size: 1.5rem;" th:text="${cat.icon}">🧗</td>
+                    <td style="padding: 12px;">
+                        <strong th:text="${cat.name}" style="color:var(--dark-green);">Klettern</strong>
+                    </td>
+                    <td class="actions" style="padding: 12px;">
+                        <form th:action="@{/categories/delete}" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${cat.id}"/>
+                            <button type="submit" style="background:none; border:none; cursor:pointer; color:#c62828;" onclick="return confirm('Are you sure?');">🗑️ Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

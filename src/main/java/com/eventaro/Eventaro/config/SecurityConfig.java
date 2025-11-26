@@ -1,12 +1,13 @@
 package com.eventaro.Eventaro.config;
 
+import com.eventaro.Eventaro.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -14,54 +15,49 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // WICHTIG: Wir entfernen hier den Konstruktor und die Variable für CustomUserDetailsService.
-    // Spring findet den Service automatisch, weil er ein @Bean (via @Service) ist.
-    // Das verhindert den "Could not postProcess"-Fehler.
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        // 1. Statische Ressourcen (CSS, Bilder)
-                        .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/css/**", "/images/**", "/js/**", "/webjars/**").permitAll()
+                        // Public Pages inkl. Register/Login erlauben
+                        .requestMatchers("/", "/home", "/public/**", "/login", "/register", "/error").permitAll()
 
-                        // 2. Öffentliche Seiten
-                        .requestMatchers("/", "/login", "/register", "/error").permitAll()
-                        .requestMatchers("/events/details/**", "/events/details/*/image").permitAll()
+                        // Kundenbereich
+                        .requestMatchers("/my-profile/**").authenticated()
 
-                        // 3. Backoffice: Nur für Mitarbeiter/Admins
-                        .requestMatchers("/dashboard", "/log", "/categories/**", "/organizers/**").hasAnyRole("ADMIN", "FRONT_OFFICE")
-                        .requestMatchers("/events/create", "/events/edit/**").hasRole("ADMIN")
-                        .requestMatchers("/invoices/**").hasAnyRole("ADMIN", "FRONT_OFFICE")
+                        // Backoffice/Admin Bereiche
+                        .requestMatchers("/dashboard/**").hasAnyRole("FRONTOFFICE", "BACKOFFICE", "ADMIN")
+                        .requestMatchers("/events/**", "/bookings/**", "/invoices/**", "/categories/**").hasAnyRole("FRONTOFFICE", "BACKOFFICE", "ADMIN")
+                        .requestMatchers("/admin/**", "/log/**", "/users/**").hasRole("ADMIN")
 
-                        // 4. Buchungsprozess: Nur eingeloggte User
-                        .requestMatchers("/bookings/create/**").authenticated()
-
-                        // 5. Alles andere sperren
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true) // Nach Login zur Homepage
+                .formLogin((form) -> form
+                        .loginPage("/login") // Eigene Login Seite
+                        .defaultSuccessUrl("/redirect-by-role", true) // Logik wohin nach Login
                         .permitAll()
                 )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/") // Nach Logout zur Homepage
+                .logout((logout) -> logout
+                        .logoutSuccessUrl("/home")
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.disable()); // CSRF deaktivieren für einfache Entwicklung
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 }

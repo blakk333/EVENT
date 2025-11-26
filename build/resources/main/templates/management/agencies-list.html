@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+  <title>Agenturen & Firmen</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='management'">
+
+  <div class="page-header" style="margin-bottom: 2rem;">
+    <h1>Corporate & Agency Management</h1>
+    <p class="subtitle">Verwaltung von B2B-Partnern und Kontingenten (WI #80, #81, #82)</p>
+  </div>
+
+  <div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; color: var(--dark-green);">Partner Liste</h3>
+      <a th:href="@{/agencies/create}" class="btn-primary">+ Neuer Partner</a>
+    </div>
+    <div class="table-scroll">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead style="background: #f9f9f9;">
+        <tr>
+          <th style="padding: 10px; text-align: left;">Name</th>
+          <th style="padding: 10px; text-align: left;">Typ</th>
+          <th style="padding: 10px; text-align: left;">Kontakt</th>
+          <th style="padding: 10px; text-align: left;">Rabatt (WI #81)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="client : ${clients}" style="border-bottom: 1px solid #eee;">
+          <td style="padding: 10px; font-weight: bold;" th:text="${client.name}">Name</td>
+          <td style="padding: 10px;">
+                        <span style="background: #e3f2fd; color: #0277bd; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;"
+                              th:text="${client.type}">AGENCY</span>
+          </td>
+          <td style="padding: 10px;">
+            <span th:text="${client.contactPerson}">Person</span><br>
+            <small style="color: #888;" th:text="${client.email}">Email</small>
+          </td>
+          <td style="padding: 10px; color: var(--primary-orange); font-weight: bold;">
+                        <span th:if="${client.negotiatedDiscount != null}"
+                              th:text="${#numbers.formatPercent(client.negotiatedDiscount, 1, 0)}">15%</span>
+            <span th:if="${client.negotiatedDiscount == null}">-</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; color: var(--dark-green);">Aktive Kontingente (Reservierungen)</h3>
+      <a th:href="@{/agencies/contingent/create}" class="btn-secondary" style="font-size: 0.9rem;">+ Kontingent blocken (WI #82)</a>
+    </div>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead style="background: #f9f9f9;">
+      <tr>
+        <th style="padding: 10px; text-align: left;">Event</th>
+        <th style="padding: 10px; text-align: left;">Partner</th>
+        <th style="padding: 10px; text-align: left;">Anzahl</th>
+        <th style="padding: 10px; text-align: left;">Ablaufdatum</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="con : ${contingents}" style="border-bottom: 1px solid #eee;">
+        <td style="padding: 10px;" th:text="${con.event.title}">Event</td>
+        <td style="padding: 10px;" th:text="${con.client.name}">Firma</td>
+        <td style="padding: 10px; font-weight: bold;" th:text="${con.reservedCount} + ' Plätze'">10</td>
+        <td style="padding: 10px; color: #c62828;" th:text="${#temporals.format(con.expiryDate, 'dd.MM.yyyy')}">Datum</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

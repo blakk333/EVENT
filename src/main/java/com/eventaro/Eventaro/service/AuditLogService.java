@@ -1,38 +1,37 @@
 package com.eventaro.Eventaro.service;
 
-import com.eventaro.Eventaro.domain.model.AuditLog;
-import com.eventaro.Eventaro.persistence.AuditLogRepository;
-import org.springframework.security.core.Authentication;
+import com.eventaro.Eventaro.model.AuditLog;
+import com.eventaro.Eventaro.repository.AuditLogRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class AuditLogService {
 
-    private final AuditLogRepository auditLogRepository;
+    @Autowired
+    private AuditLogRepository auditLogRepository;
 
-    public AuditLogService(AuditLogRepository auditLogRepository) {
-        this.auditLogRepository = auditLogRepository;
-    }
-
-    /**
-     * Schreibt einen Eintrag ins Log.
-     * Der Username wird automatisch aus dem SecurityContext geholt.
-     */
-    public void log(String action, String details) {
-        String username = "Anonymous"; // Fallback (z.B. bei Registrierung oder System-Jobs)
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            username = auth.getName();
+    @Transactional
+    public void log(String type, String message) {
+        // Den aktuell eingeloggten User ermitteln
+        String currentUsername = "System"; // Fallback
+        try {
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            }
+        } catch (Exception e) {
+            // Ignorieren, falls kein SecurityContext da ist (z.B. beim Booten)
         }
 
-        AuditLog logEntry = new AuditLog(username, action, details);
+        AuditLog logEntry = new AuditLog(type, message, currentUsername);
         auditLogRepository.save(logEntry);
     }
 
+    // Für die Anzeige im Admin-Bereich
     public List<AuditLog> getAllLogs() {
         return auditLogRepository.findAllByOrderByTimestampDesc();
     }

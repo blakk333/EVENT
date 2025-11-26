@@ -1,86 +1,103 @@
 package com.eventaro.Eventaro.service;
 
-import com.eventaro.Eventaro.domain.model.*;
-import com.eventaro.Eventaro.persistence.*;
-import jakarta.persistence.EntityNotFoundException;
+import com.eventaro.Eventaro.model.*;
+import com.eventaro.Eventaro.repository.InvoiceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.List;
 
 @Service
 public class InvoiceService {
 
-    private final InvoiceRepository invoiceRepository;
-    private final BookingRepository bookingRepository;
-    private final AuditLogService auditLogService;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
 
-    public InvoiceService(InvoiceRepository invoiceRepository,
-                          BookingRepository bookingRepository,
-                          AuditLogService auditLogService) {
-        this.invoiceRepository = invoiceRepository;
-        this.bookingRepository = bookingRepository;
-        this.auditLogService = auditLogService;
+    private int invoiceCounter = 1000;
+
+    @Transactional
+    public Invoice createInvoiceFromBooking(Booking booking) {
+        List<Invoice> existing = invoiceRepository.findByBookingRef(booking.getBookingNumber());
+        if (!existing.isEmpty()) return existing.get(0);
+
+        Invoice inv = new Invoice(booking.getBookingNumber(), booking.getGuestName(), "Musterstraße 1, 1010 Wien");
+
+        // --- NEU: Anzahlung übernehmen ---
+        inv.setAdvancePayment(booking.getDepositAmount());
+
+        double price = booking.getNegotiatedPricePerPerson() != null ?
+                booking.getNegotiatedPricePerPerson() : booking.getStandardPricePerPerson();
+
+        inv.addItem(new InvoiceItem("Teilnahme: " + booking.getEventName(), booking.getParticipantCount(), price, 0.20));
+
+        // Demo-Items
+        inv.addItem(new InvoiceItem("Ausrüstungsverleih (Helm & Gurt)", 2, 15.00, 0.20));
+        inv.addItem(new InvoiceItem("Getränkepauschale", 5, 4.50, 0.10));
+
+        return invoiceRepository.save(inv);
+    }
+
+    public Invoice getInvoiceById(String id) {
+        return invoiceRepository.findById(id).orElse(null);
+    }
+
+    // Veraltete Methode (kann bleiben für Kompatibilität, ruft aber die neue auf)
+    @Transactional
+    public void finalizeInvoice(String invoiceId) {
+        finalizeInvoice(invoiceId, PaymentMethod.CASH); // Default
+    }
+
+    // --- NEU: Finalize mit PaymentMethod ---
+    @Transactional
+    public void finalizeInvoice(String invoiceId, PaymentMethod method) {
+        Invoice inv = getInvoiceById(invoiceId);
+        if (inv != null && inv.getStatus() == InvoiceStatus.DRAFT) {
+            inv.setStatus(InvoiceStatus.FINAL);
+            inv.setPaymentMethod(method); // Setze Methode
+            inv.setInvoiceNumber("RE-" + LocalDate.now().getYear() + "-" + (++invoiceCounter));
+            invoiceRepository.save(inv);
+        }
     }
 
     @Transactional
-    public Invoice createInvoiceFromBooking(Integer bookingId) {
-        // 1. Prüfen, ob schon eine Rechnung existiert
-        Optional<Invoice> existing = invoiceRepository.findByBookingId(bookingId);
-        if (existing.isPresent()) {
-            return existing.get(); // Rückgabe der existierenden Rechnung
-        }
+    public Invoice splitItemToNewInvoice(String originalInvoiceId, String itemId) {
+        Invoice origin = getInvoiceById(originalInvoiceId);
+        if (origin == null) return null;
 
-        // 2. Buchung laden
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+        InvoiceItem itemToMove = origin.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst().orElse(null);
 
-        // 3. Rechnungskopf erstellen
-        Invoice invoice = new Invoice();
-        invoice.setBooking(booking);
-        invoice.setPaymentMethod(booking.getPaymentMethod());
+        if (itemToMove == null) return origin;
 
-        // Kundendaten festschreiben (Snapshot)
-        Customer cust = booking.getCustomer();
-        invoice.setRecipientName(cust.getFirstName() + " " + cust.getLastName());
+        Invoice splitInvoice = findOrCreateSplitInvoice(origin);
 
-        if (cust.getAddress() != null) {
-            String addrStr = cust.getAddress().getStreet() + " " +
-                    cust.getAddress().getHousenumber() + ", " +
-                    cust.getAddress().getZipCode() + " " +
-                    cust.getAddress().getCity();
-            invoice.setRecipientAddress(addrStr);
-        }
+        origin.removeItem(itemToMove);
+        splitInvoice.addItem(itemToMove);
 
-        // Rechnungsnummer generieren (Format: INV-JAHR-ZUFALL)
-        String invNum = "INV-" + LocalDate.now().getYear() + "-" + UUID.randomUUID().toString().substring(0,6).toUpperCase();
-        invoice.setInvoiceNumber(invNum);
+        invoiceRepository.save(origin);
+        invoiceRepository.save(splitInvoice);
 
-        // 4. Positionen hinzufügen
-        // Position 1: Tickets
-        double pricePerTicket = booking.getEvent().getBasePrice();
-        InvoiceItem ticketItem = new InvoiceItem(
-                "Event Ticket: " + booking.getEvent().getName(),
-                booking.getTicketCount(),
-                pricePerTicket
-        );
-        invoice.addItem(ticketItem);
-
-        // (Hier könnten später noch Additional Services hinzugefügt werden)
-
-        // 5. Speichern
-        Invoice savedInvoice = invoiceRepository.save(invoice);
-
-        // 6. Logging
-        auditLogService.log("CREATE_INVOICE", "Generated Invoice " + savedInvoice.getInvoiceNumber() + " for Booking " + booking.getBookingNumber());
-
-        return savedInvoice;
+        return origin;
     }
 
-    public Invoice getInvoiceById(Integer id) {
-        return invoiceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
+    private Invoice findOrCreateSplitInvoice(Invoice origin) {
+        return invoiceRepository.findByBookingRef(origin.getBookingRef()).stream()
+                .filter(i -> !i.getId().equals(origin.getId()) && i.getStatus() == InvoiceStatus.DRAFT)
+                .findFirst()
+                .orElseGet(() -> {
+                    Invoice newInv = new Invoice(origin.getBookingRef(), "Split Empfänger (bitte ändern)", "");
+                    return invoiceRepository.save(newInv);
+                });
+    }
+
+    public List<Invoice> getInvoicesForBooking(String bookingRef) {
+        return invoiceRepository.findByBookingRef(bookingRef);
+    }
+
+    public double calculateRevenueToday() {
+        return 0.0; // Dummy für Dashboard
     }
 }

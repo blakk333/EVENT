@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+  <title>Tagesgeschäft - Front Office</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='operational'">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="color: var(--light-green);">Front Office Desk</h1>
+      <p class="subtitle">Gästeliste für heute, <span th:text="${#temporals.format(todayDate, 'dd.MM.yyyy')}">Datum</span></p>
+    </div>
+    <a th:href="@{/bookings/walk-in}" class="btn-primary" style="background-color: var(--light-green);">+ Walk-In Gast (WI #75)</a>
+  </div>
+
+  <div th:if="${errorMessage}" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid #f5c6cb;">
+    <span th:text="${errorMessage}">Fehler!</span>
+  </div>
+
+  <div th:if="${successMessage}" style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid #c3e6cb;">
+    <span th:text="${successMessage}">Erfolg!</span>
+  </div>
+
+  <div class="card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+        <tr>
+          <th>Zeit</th>
+          <th>Gast / Buchung</th>
+          <th>Finanzen (WI #69)</th> <th>Status</th>
+          <th>Aktionen (Flow)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="booking : ${bookings}">
+          <td style="font-weight:bold;" th:text="${#temporals.format(booking.eventDateTime, 'HH:mm')}">10:00</td>
+
+          <td>
+            <strong th:text="${booking.guestName}">Gast</strong><br>
+            <small th:text="${booking.bookingNumber}" style="color:#888;">B-Nr</small>
+            <span style="font-size: 0.7rem; color: #999; text-transform: uppercase; margin-left: 5px;" th:text="${booking.type}">TYP</span>
+          </td>
+
+          <td>
+            <div th:if="${booking.depositAmount > 0}" style="color: var(--light-green); font-size: 0.85rem; font-weight: bold;">
+              Anzahlung: € <span th:text="${#numbers.formatDecimal(booking.depositAmount, 1, 2)}">50.00</span>
+            </div>
+            <div th:if="${booking.depositAmount == 0}" style="color: #888; font-size: 0.85rem;">
+              - Keine Anzahlung -
+            </div>
+
+            <form th:if="${!booking.paid and !booking.checkedOut}"
+                  th:action="@{/bookings/deposit}" method="post" style="margin-top: 5px; display:flex; gap:5px;">
+              <input type="hidden" name="bookingNumber" th:value="${booking.bookingNumber}"/>
+              <input type="number" name="amount" placeholder="€ Betrag" step="0.01" min="0.01" required
+                     style="width: 80px; padding: 4px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 3px;">
+              <button type="submit" style="font-size: 0.7rem; background: #eee; border: 1px solid #ccc; cursor: pointer; border-radius: 3px; padding: 0 8px;">+ Einzahlen</button>
+            </form>
+          </td>
+
+          <td>
+            <span th:if="${booking.checkedOut}" class="status canceled" style="background-color:#eee; color:#333;">Abgereist</span>
+            <span th:if="${!booking.checkedOut and booking.paid}" class="status confirmed">Bezahlt</span>
+            <span th:if="${!booking.checkedOut and !booking.paid and booking.checkedIn}" class="status confirmed" style="background-color: #e3f2fd; color: #0277bd;">Anwesend</span>
+            <span th:if="${!booking.checkedIn}" class="status pending">Erwartet</span>
+          </td>
+
+          <td class="actions" style="display: flex; gap: 5px;">
+
+            <form th:if="${!booking.checkedIn}" th:action="@{/bookings/checkin}" method="post">
+              <input type="hidden" name="bookingNumber" th:value="${booking.bookingNumber}"/>
+              <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">Check-In</button>
+            </form>
+
+            <form th:if="${booking.checkedIn and !booking.checkedOut}" th:action="@{/bookings/checkout}" method="post">
+              <input type="hidden" name="bookingNumber" th:value="${booking.bookingNumber}"/>
+              <button type="submit" class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; background-color: #333;">Check-Out & Rechnung</button>
+            </form>
+
+            <span th:if="${booking.checkedOut}" style="color:green;">✅ Erledigt</span>
+
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,78 +1,78 @@
 package com.eventaro.Eventaro.config;
 
-import com.eventaro.Eventaro.domain.model.Category;
-import com.eventaro.Eventaro.domain.model.Organizer;
-import com.eventaro.Eventaro.domain.model.User;
-import com.eventaro.Eventaro.enums.UserRole;
-import com.eventaro.Eventaro.persistence.CategoryRepository;
-import com.eventaro.Eventaro.persistence.OrganizerRepository;
-import com.eventaro.Eventaro.persistence.UserRepository;
+import com.eventaro.Eventaro.model.*;
+import com.eventaro.Eventaro.repository.BookingRepository;
+import com.eventaro.Eventaro.repository.EventRepository;
+import com.eventaro.Eventaro.repository.UserRepository; // NEU
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder; // NEU
+
+import java.time.LocalDateTime;
 
 @Configuration
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initData(UserRepository userRepository,
-                               CategoryRepository categoryRepository,
-                               OrganizerRepository organizerRepository,
-                               PasswordEncoder passwordEncoder) {
+    CommandLineRunner initDatabase(EventRepository eventRepo,
+                                   BookingRepository bookingRepo,
+                                   UserRepository userRepo, // NEU: Repository für User
+                                   PasswordEncoder encoder) { // NEU: Encoder für Passwörter
         return args -> {
-            // 1. Admin User
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                User admin = new User();
-                admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("admin123"));
-                admin.setRole(UserRole.ADMIN);
-                userRepository.save(admin);
-                System.out.println("ADMIN USER CREATED: Username 'admin', Password 'admin123'");
+
+            // --- SCHRITT 1: BENUTZER INITIALISIEREN ---
+            if (userRepo.count() == 0) {
+                System.out.println("--- Erstelle Standard-Benutzer ---");
+
+                // Admin (Darf alles)
+                User admin = new User("admin", encoder.encode("admin123"), "ADMIN", "System Administrator");
+                userRepo.save(admin);
+
+                // Backoffice (Darf Events & Buchungen verwalten)
+                User bo = new User("backoffice", encoder.encode("back123"), "BACKOFFICE", "Backoffice Mitarbeiter");
+                userRepo.save(bo);
+
+                // Frontoffice (Darf Check-Ins machen & Tagesgeschäft sehen)
+                User fo = new User("frontoffice", encoder.encode("front123"), "FRONTOFFICE", "Frontoffice Mitarbeiter");
+                userRepo.save(fo);
+
+                System.out.println("--- Benutzer erstellt: admin/admin123, backoffice/back123, frontoffice/front123 ---");
             }
 
-            // 2. Front Office User (für den Empfang)
-            if (userRepository.findByUsername("front").isEmpty()) {
-                User front = new User();
-                front.setUsername("front");
-                front.setPassword(passwordEncoder.encode("front123"));
-                front.setRole(UserRole.FRONT_OFFICE);
-                userRepository.save(front);
-                System.out.println("FRONT OFFICE USER CREATED: Username 'front', Password 'front123'");
-            }
+            // --- SCHRITT 2: EVENTS & BUCHUNGEN INITIALISIEREN ---
+            // Nur initialisieren, wenn Event-DB leer ist
+            if (eventRepo.count() > 0) return;
 
-            // 3. Kategorien erstellen
-            if (categoryRepository.count() == 0) {
-                createCategory(categoryRepository, "Canyoning", "Exciting tours through gorges");
-                createCategory(categoryRepository, "Hiking", "Guided mountain hikes");
-                createCategory(categoryRepository, "Skiing", "Winter sports and courses");
-                createCategory(categoryRepository, "Climbing", "Indoor and outdoor climbing");
-                System.out.println("CATEGORIES CREATED");
-            }
+            System.out.println("--- Initialisiere Datenbank mit Dummy-Daten (Events & Buchungen) ---");
 
-            // 4. Organisatoren erstellen
-            if (organizerRepository.count() == 0) {
-                createOrganizer(organizerRepository, "Alpine Adventures", "contact@alpine.com");
-                createOrganizer(organizerRepository, "Ski School Tyrol", "info@skityrol.at");
-                createOrganizer(organizerRepository, "Outdoor Fun GmbH", "office@outdoorfun.com");
-                System.out.println("ORGANIZERS CREATED");
-            }
+            // 1. Events erstellen
+            Event e1 = new Event(null, "Canyoning Einsteiger", "Wassersport Tirol", "Canyoning", "Anfänger", 89.00, 15, StatusOfEvent.PUBLISHED);
+            e1.setDescription("Ein spritziges Abenteuer für die ganze Familie.");
+            e1.addDate(LocalDateTime.now().plusDays(2).withHour(10).withMinute(0));
+            e1.addAddOn(new AddOn("GoPro Verleih", 25.00));
+            eventRepo.save(e1);
+
+            Event e2 = new Event(null, "Klettersteig 'Adler'", "Alpinschule Innsbruck", "Klettern", "Fortgeschritten", 45.50, 8, StatusOfEvent.DRAFT);
+            e2.setDescription("Nur für Schwindelfreie!");
+            e2.addDate(LocalDateTime.now().plusDays(5).withHour(9).withMinute(0));
+            eventRepo.save(e2);
+
+            Event e3 = new Event(null, "Yoga im Park", "Relax Austria", "Yoga", "Anfänger", 25.00, 20, StatusOfEvent.PUBLISHED);
+            e3.addDate(LocalDateTime.now().plusDays(1).withHour(18).withMinute(0));
+            eventRepo.save(e3);
+
+            // 2. Buchungen erstellen
+// Beispiel Anpassung:
+            Booking b1 = new Booking("B-1001", "Anna Schmidt", "anna@test.com", "Yoga im Park",
+                    LocalDateTime.now().plusDays(1).withHour(18).withMinute(0),
+                    BookingType.INDIVIDUAL, 1, 25.00);
+
+            Booking b2 = new Booking("B-1002", "Markus Müller", "markus@test.com", "Canyoning Einsteiger",
+                    LocalDateTime.now().plusDays(2).withHour(10).withMinute(0),
+                    BookingType.INDIVIDUAL, 2, 89.00);
+
+            System.out.println("--- Datenbank Initialisierung abgeschlossen ---");
         };
-    }
-
-    private void createCategory(CategoryRepository repo, String name, String description) {
-        Category c = new Category();
-        c.setName(name);
-        c.setDescription(description);
-        repo.save(c);
-    }
-
-    private void createOrganizer(OrganizerRepository repo, String name, String email) {
-        Organizer o = new Organizer();
-        o.setOrganizationName(name);
-        o.setEmail(email);
-        o.setContactPerson("Max Mustermann");
-        o.setPhone("+43 123 45678");
-        repo.save(o);
     }
 }

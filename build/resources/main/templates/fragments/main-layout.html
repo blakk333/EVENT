@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head-content">
+  <meta charset="UTF-8">
+  <title layout:title-pattern="$CONTENT_TITLE - Eventaro Backoffice">Eventaro</title>
+  <link rel="stylesheet" th:href="@{/css/layout.css}">
+  <link rel="stylesheet" th:href="@{/css/components.css}">
+</head>
+<body>
+
+<nav>
+  <div class="left-section">
+    <a th:href="@{/dashboard}">
+      <img th:src="@{/images/logo.svg}" alt="Eventaro Logo" class="logo-img">
+    </a>
+  </div>
+
+  <ul class="nav-links">
+    <li>
+      <a th:href="@{/dashboard}"
+         th:classappend="${activeMenuItem == 'dashboard'} ? 'active'">Dashboard</a>
+    </li>
+
+    <li sec:authorize="hasAnyRole('FRONTOFFICE', 'BACKOFFICE', 'ADMIN')"
+        style="border-left: 1px solid #ccc; padding-left: 1rem; margin-left: 1rem;">
+      <span style="font-size: 0.7rem; text-transform: uppercase; color: #888; display: block; line-height: 1;">Front Office</span>
+    </li>
+    <li sec:authorize="hasAnyRole('FRONTOFFICE', 'BACKOFFICE', 'ADMIN')">
+      <a th:href="@{/bookings/today}"
+         th:classappend="${activeMenuItem == 'operational'} ? 'active'">Tagesgeschäft</a>
+    </li>
+
+    <li sec:authorize="hasAnyRole('BACKOFFICE', 'ADMIN')"
+        style="border-left: 1px solid #ccc; padding-left: 1rem; margin-left: 1rem;">
+      <span style="font-size: 0.7rem; text-transform: uppercase; color: #888; display: block; line-height: 1;">Back Office</span>
+    </li>
+
+    <li sec:authorize="hasAnyRole('BACKOFFICE', 'ADMIN')">
+      <a th:href="@{/events/view}"
+         th:classappend="${activeMenuItem == 'management'} ? 'active'">Events</a>
+    </li>
+
+    <li sec:authorize="hasAnyRole('BACKOFFICE', 'ADMIN')">
+      <a th:href="@{/categories/manage}"
+         th:classappend="${activeMenuItem == 'categories'} ? 'active'">Kategorien</a>
+    </li>
+
+    <li sec:authorize="hasAnyRole('BACKOFFICE', 'ADMIN')">
+      <a th:href="@{/bookings/all}"
+         th:classappend="${activeMenuItem == 'bookings'} ? 'active'">Buchungen</a>
+    </li>
+
+    <li sec:authorize="hasRole('ADMIN')"
+        style="border-left: 1px solid #ccc; padding-left: 1rem; margin-left: 1rem;">
+      <span style="font-size: 0.7rem; text-transform: uppercase; color: #888; display: block; line-height: 1;">Admin</span>
+    </li>
+    <li sec:authorize="hasRole('ADMIN')">
+      <a th:href="@{/users/manage}"
+         th:classappend="${activeMenuItem == 'users'} ? 'active'">Benutzer</a>
+    </li>
+    <li sec:authorize="hasRole('ADMIN')">
+      <a th:href="@{/log}"
+         th:classappend="${activeMenuItem == 'admin'} ? 'active'">Audit Log</a>
+    </li>
+  </ul>
+
+  <div class="profile-box">
+    <img th:src="@{/images/mariaBerger.png}" alt="User Profil">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; font-size: 0.9rem;">
+      <span style="font-weight: bold;" sec:authentication="name">User</span>
+      <span style="font-size: 0.7rem; color: #666;" sec:authentication="principal.authorities">ROLE</span>
+
+      <form th:action="@{/logout}" method="post">
+        <button type="submit" style="background: none; border: none; padding: 0; color: #c62828; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+          Abmelden
+        </button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<main layout:fragment="content" class="container"></main>
+
+<footer>
+  <p>Eventaro System | &copy; 2025</p>
+</footer>
+
+</body>
+</html>

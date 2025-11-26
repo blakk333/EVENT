@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Neue Kategorie</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='categories'">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1>Create new Category</h1>
+    </div>
+
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <form th:action="@{/categories/save}" method="post" th:object="${category}">
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Category Name*</label>
+                <input type="text" th:field="*{name}" placeholder="z.B. Klettern" required
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label style="font-weight: bold; color: var(--dark-green); display: block; margin-bottom: 0.5rem;">Icon / Emoji</label>
+                <input type="text" th:field="*{icon}" placeholder="z.B. 🧗 oder 🌊"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                <p style="font-size:0.8rem; color:#888; margin-top:5px;">Verwende Emojis (Win+. oder Cmd+Ctrl+Space) für beste Optik.</p>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+                <a th:href="@{/categories/manage}" class="btn-secondary" style="background-color: #6c757d; padding:0.7rem 1.5rem; text-decoration:none; color:white; border-radius:4px;">Cancel</a>
+                <button type="submit" class="btn-primary" style="background-color: var(--primary-orange); border: none; padding:0.7rem 1.5rem; color:white; border-radius:4px; cursor:pointer;">Save Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

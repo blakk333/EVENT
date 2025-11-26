@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Walk-In Erfassen</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='operational'">
+
+    <div style="max-width: 800px; margin: 0 auto;">
+
+        <h1 style="color: var(--dark-green); margin-bottom: 0.5rem;">Neuer Walk-In Gast</h1>
+        <p class="subtitle">Gast direkt vor Ort erfassen und einchecken.</p>
+
+        <div class="card">
+            <form th:action="@{/bookings/walk-in}" method="post">
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="guestName" style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">Name des Gastes*</label>
+                    <input type="text" id="guestName" name="guestName" placeholder="z.B. Maria Musterfrau" required autofocus
+                           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="email" style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">E-Mail Adresse</label>
+                    <input type="email" id="email" name="email" placeholder="Optional für Rechnung"
+                           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="eventName" style="display:block; font-weight:bold; margin-bottom: 0.5rem; color: var(--dark-green);">Event wählen*</label>
+                    <select id="eventName" name="eventName" required
+                            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: white;">
+                        <option value="" disabled selected>-- Bitte Event wählen --</option>
+                        <option th:each="ev : ${events}" th:value="${ev}" th:text="${ev}"></option>
+                    </select>
+                </div>
+
+
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center;">
+                    <button type="submit" class="btn-primary">
+                        ✓ Kostenpflichtig Buchen & Einchecken
+                    </button>
+                    <a th:href="@{/bookings/today}" style="color: #666; text-decoration: none; font-weight: 500;">Abbrechen</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

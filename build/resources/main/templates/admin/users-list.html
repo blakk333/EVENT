@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head>
+    <title>Benutzerverwaltung</title>
+</head>
+<body>
+
+<div layout:fragment="content" th:with="activeMenuItem='users'">
+
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1>Benutzerverwaltung</h1>
+        <p class="subtitle">Verwaltung der Systemzugänge und Rollen</p>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; color: var(--dark-green);">Registrierte Benutzer</h3>
+            <a th:href="@{/users/create}" class="btn-primary" style="background-color: var(--primary-orange); border: none;">+ Neuer Benutzer</a>
+        </div>
+
+        <div class="table-scroll">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                <tr style="background-color: #f9f9f9; text-align: left; border-bottom: 2px solid #eee;">
+                    <th style="padding: 12px; color: var(--dark-green);">ID</th>
+                    <th style="padding: 12px; color: var(--dark-green);">Username</th>
+                    <th style="padding: 12px; color: var(--dark-green);">Voller Name</th>
+                    <th style="padding: 12px; color: var(--dark-green);">Rolle</th>
+                    <th style="padding: 12px; color: var(--dark-green);">Aktionen</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}" style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; color: #666;" th:text="${user.id}">1</td>
+                    <td style="padding: 12px;">
+                        <strong th:text="${user.username}">admin</strong>
+                    </td>
+                    <td style="padding: 12px;" th:text="${user.fullName}">System Administrator</td>
+                    <td style="padding: 12px;">
+                        <span style="background-color: #e3f2fd; color: #0277bd; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;"
+                              th:text="${user.role}">ADMIN</span>
+                    </td>
+                    <td style="padding: 12px;">
+                        <form th:if="${user.username != #authentication.name}"
+                              th:action="@{/users/delete}" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${user.id}"/>
+                            <button type="submit" style="background:none; border:none; cursor:pointer; color:#c62828;"
+                                    onclick="return confirm('Diesen Benutzer wirklich löschen?');">🗑️ Löschen</button>
+                        </form>
+                        <span th:if="${user.username == #authentication.name}" style="color:#ccc; font-size:0.8rem;">(Aktuell eingeloggt)</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

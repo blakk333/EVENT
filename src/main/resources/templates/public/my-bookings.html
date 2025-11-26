@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Meine Buchungen - Eventaro</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+</head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <a th:href="@{/home}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+            <span class="brand-name">Eventaro</span>
+        </a>
+    </div>
+    <div class="profile-box" style="margin-left: auto;">
+        <span style="margin-right: 10px; font-weight: bold; color: var(--dark-green);" th:text="${username}">User</span>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" style="background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 20px; cursor: pointer;">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<section class="container section-padding">
+    <h1 class="section-title" style="text-align: left; border-bottom: 4px solid var(--primary-orange); padding-bottom: 10px; display: inline-block;">Meine Buchungen</h1>
+
+    <div th:if="${bookings.empty}" style="margin-top: 3rem; text-align: center; color: #666;">
+        <p style="font-size: 1.2rem;">Du hast noch keine Abenteuer gebucht.</p>
+        <a th:href="@{/public/events}" class="btn-primary" style="margin-top: 1rem;">Jetzt Events entdecken</a>
+    </div>
+
+    <div class="event-grid" style="margin-top: 2rem;">
+        <div class="event-card" th:each="b : ${bookings}" style="border-left: 5px solid var(--light-green);">
+            <div class="event-details">
+                <div style="display: flex; justify-content: space-between;">
+                    <span class="event-location" th:text="${b.bookingNumber}">B-123</span>
+                    <span th:if="${b.cancelled}" style="color: #c62828; font-weight: bold; font-size: 0.8rem;">STORNIERT</span>
+                    <span th:if="${!b.cancelled and b.eventDateTime.isAfter(T(java.time.LocalDateTime).now())}" style="color: var(--light-green); font-weight: bold; font-size: 0.8rem;">GEBUCHT</span>
+                    <span th:if="${!b.cancelled and b.eventDateTime.isBefore(T(java.time.LocalDateTime).now())}" style="color: #666; font-weight: bold; font-size: 0.8rem;">VERGANGEN</span>
+                </div>
+
+                <h3 th:text="${b.eventName}" style="margin: 0.5rem 0;">Event Name</h3>
+
+                <p style="font-size: 0.9rem; color: #555;">
+                    📅 <span th:text="${#temporals.format(b.eventDateTime, 'dd.MM.yyyy HH:mm')}">Datum</span><br>
+                    👤 <span th:text="${b.participantCount}">1</span> Personen
+                </p>
+
+                <div class="event-footer" style="border-top: 1px solid #eee; padding-top: 1rem;">
+                    <span class="price" th:if="${!b.cancelled}">
+                        Gesamt: € <span th:text="${#numbers.formatDecimal((b.negotiatedPricePerPerson != null ? b.negotiatedPricePerPerson : b.standardPricePerPerson) * b.participantCount, 1, 2)}">100.00</span>
+                    </span>
+                    <span class="price" th:if="${b.cancelled}" style="text-decoration: line-through; color: #999;">
+                        Gesamt: € ...
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>Eventaro &copy; 2025</p>
+</footer>
+
+</body>
+</html>

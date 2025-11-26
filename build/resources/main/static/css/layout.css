@@ -1,0 +1,106 @@
+:root {
+    --bg-creme: #fcf9f2; /* Der beige Hintergrund */
+    --primary-orange: #F1911B; /* Footer & Akzente */
+    --dark-green: #1a4026; /* Header Text & Logo Wald */
+    --light-green: #2e7d32; /* Front Office Buttons */
+    --text-dark: #333333;
+    --nav-hover: #e0e0e0;
+    --white: #ffffff;
+    --gray-light: #f5f5f5;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-creme); /* WICHTIG: Hintergrundfarbe */
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* --- Navigation / Header --- */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 3rem;
+    background-color: var(--bg-creme); /* Gleiche Farbe wie Body */
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 1rem;
+    padding-bottom: 2px;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: var(--dark-green);
+    border-bottom: 2px solid var(--primary-orange); /* Oranger Unterstrich aktiv */
+}
+
+.logo-img {
+    height: 50px; /* Anpassen je nach Logo-Größe */
+}
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.profile-box img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* --- Main Content --- */
+.container {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+/* --- Footer --- */
+footer {
+    background-color: var(--primary-orange); /* Der orange Footer */
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: auto;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.footer-logo {
+    margin-top: 1rem;
+    opacity: 0.8;
+    height: 40px;
+    /* Falls du das Berg-Logo hier weiß brauchst: filter: brightness(0) invert(1); */
+}

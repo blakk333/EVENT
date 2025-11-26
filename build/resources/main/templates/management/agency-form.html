@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/main-layout}">
+<head><title>Partner anlegen</title></head>
+<body>
+<div layout:fragment="content" th:with="activeMenuItem='management'">
+  <div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <h2>Neuen B2B Partner anlegen</h2>
+    <form th:action="@{/agencies/save}" method="post" th:object="${client}">
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Firmenname*</label>
+        <input type="text" th:field="*{name}" required style="width: 100%; padding: 8px;">
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Typ (WI #54)</label>
+        <select th:field="*{type}" style="width: 100%; padding: 8px;">
+          <option value="AGENCY">Agentur (Vermittler)</option>
+          <option value="COMPANY">Firma (Direktkunde)</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Verhandelter Rabatt (WI #81)</label>
+        <input type="number" step="0.01" th:field="*{negotiatedDiscount}" placeholder="z.B. 0.15 für 15%" style="width: 100%; padding: 8px;">
+        <small style="color:#666;">Wert als Dezimalzahl (0.10 = 10%)</small>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">Kontaktperson</label>
+        <input type="text" th:field="*{contactPerson}" style="width: 100%; padding: 8px;">
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display:block; font-weight:bold;">E-Mail</label>
+        <input type="email" th:field="*{email}" style="width: 100%; padding: 8px;">
+      </div>
+
+      <button type="submit" class="btn-primary" style="width:100%;">Speichern</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
