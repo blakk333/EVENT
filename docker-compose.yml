@@ -3,7 +3,7 @@ version: '3.8'
 services:
   eventaro-db:
     image: postgres:15-alpine
-    container_name: eventaro-postgres
+    container_name: eventaro-postgres96
     environment:
       - POSTGRES_DB=eventarodb
       - POSTGRES_USER=eventaro

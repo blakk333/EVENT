@@ -30,11 +30,19 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="package-info" />
         <option value="HTML File" />
-        <option value="CSS File" />
+        <option value="Class" />
+        <option value="Enum" />
+        <option value="package-info" />
       </list>
     </option>
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="Security Analysis" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -48,17 +56,18 @@
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
     "Gradle.Eventaro333333 [:com.eventaro.Eventaro.EventaroApplication.main()].executor": "Run",
+    "Gradle.Eventaro44444444444444444444444444444444 [:com.eventaro.Eventaro.EventaroApplication.main()].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/sayed/Downloads/Eventaro (1)",
-    "list.type.of.created.stylesheet": "CSS",
+    "last_opened_file_path": "C:/Users/sayed/Downloads/Eventaro44444444444444444444444444444444 - Kopie",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -66,10 +75,11 @@
       <recent name="C:\Users\sayed\Downloads\Eventaro333333\src" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.eventaro.Eventaro.config" />
-      <recent name="com.eventaro.Eventaro.service" />
-      <recent name="com.eventaro.Eventaro.repository" />
-      <recent name="com.eventaro.Eventaro.rest" />
+      <recent name="com.eventaro.Eventaro.domain.address" />
+      <recent name="com.eventaro.Eventaro.application.user.mapper" />
+      <recent name="com.eventaro.Eventaro.application.user.dto" />
+      <recent name="com.eventaro.Eventaro.application.notification.dto" />
+      <recent name="com.eventaro.Eventaro.application.invoice.mapper" />
     </key>
   </component>
   <component name="SharedIndexes">

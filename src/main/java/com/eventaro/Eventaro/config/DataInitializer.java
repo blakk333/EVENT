@@ -1,9 +1,14 @@
 package com.eventaro.Eventaro.config;
 
-import com.eventaro.Eventaro.model.*;
-import com.eventaro.Eventaro.repository.BookingRepository;
-import com.eventaro.Eventaro.repository.EventRepository;
-import com.eventaro.Eventaro.repository.UserRepository; // NEU
+import com.eventaro.Eventaro.domain.event.AddOn;
+import com.eventaro.Eventaro.domain.booking.Booking;
+import com.eventaro.Eventaro.domain.event.Event;
+import com.eventaro.Eventaro.enums.BookingType;
+import com.eventaro.Eventaro.enums.StatusOfEvent;
+import com.eventaro.Eventaro.domain.user.User;
+import com.eventaro.Eventaro.domain.booking.BookingRepository;
+import com.eventaro.Eventaro.domain.event.EventRepository;
+import com.eventaro.Eventaro.domain.user.UserRepository; // NEU
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
