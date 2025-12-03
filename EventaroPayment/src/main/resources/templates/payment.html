@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sichere Zahlung - Eventaro Gateway</title>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+    <style>
+        /* Spezifische Anpassungen für den Payment-Screen */
+        .payment-container {
+            max-width: 450px;
+            margin: 4rem auto;
+            text-align: center;
+        }
+        .amount-display {
+            font-size: 2.5rem;
+            color: var(--dark-green);
+            font-weight: bold;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #e8f5e9; /* Ganz helles Grün */
+            border-radius: 8px;
+            border: 1px dashed var(--dark-green);
+        }
+        .secure-info {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .card-mockup {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .skeleton-line {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="public-nav">
+    <div class="logo-container">
+        <img th:src="@{/images/logo.svg}" alt="Eventaro" class="logo-img">
+        <span class="brand-name">Eventaro SecurePay</span>
+    </div>
+</nav>
+
+<section class="container payment-container">
+    <div class="card" style="box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <h2 style="color: var(--dark-green); margin-top: 0;">Zahlung bestätigen</h2>
+        <p style="color: #555;">Bitte bestätigen Sie die Zahlung an <strong>Eventaro GmbH</strong>.</p>
+
+        <div style="text-align: left; margin: 1.5rem 0; font-size: 0.9rem; color: #333;">
+            <p style="margin: 5px 0;"><strong>Referenz:</strong> <span th:text="${reference}">B-12345</span></p>
+            <p style="margin: 5px 0;"><strong>Verwendungszweck:</strong> Event-Buchung</p>
+        </div>
+
+        <div class="amount-display">
+            € <span th:text="${amount}">0.00</span>
+        </div>
+
+        <form th:action="@{/process}" method="post">
+            <input type="hidden" name="callbackUrl" th:value="${callbackUrl}">
+            <input type="hidden" name="reference" th:value="${reference}">
+
+            <div class="card-mockup">
+                <label style="font-size: 0.75rem; font-weight: bold; color: #555; display: block; margin-bottom: 5px;">KREDITKARTE</label>
+                <div class="skeleton-line" style="width: 80%;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="skeleton-line" style="flex: 1;"></div>
+                    <div class="skeleton-line" style="width: 50px;"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; background-color: var(--primary-orange); padding: 1rem; font-size: 1.1rem;">
+                🔒 Jetzt sicher bezahlen
+            </button>
+        </form>
+
+        <div class="secure-info">
+            <span>🔒 SSL-Verschlüsselt</span> &bull;
+            <span>Simulation (90% Erfolg)</span>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>Eventaro Payment Gateway &copy; 2025</p>
+</footer>
+
+</body>
+</html>
